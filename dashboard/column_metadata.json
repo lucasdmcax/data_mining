@@ -1,0 +1,126 @@
+{
+  "customers": {
+    "Loyalty#": {
+      "type": "discrete",
+      "description": "Unique customer identifier for loyalty program members"
+    },
+    "First Name": {
+      "type": "discrete",
+      "description": "Customer's first name"
+    },
+    "Last Name": {
+      "type": "discrete",
+      "description": "Customer's last name"
+    },
+    "Customer Name": {
+      "type": "discrete",
+      "description": "Customer's full name (concatenated)"
+    },
+    "Country": {
+      "type": "discrete",
+      "description": "Customer's country of residence"
+    },
+    "Province or State": {
+      "type": "discrete",
+      "description": "Customer's province or state"
+    },
+    "City": {
+      "type": "discrete",
+      "description": "Customer's city of residence"
+    },
+    "Latitude": {
+      "type": "continuous",
+      "description": "Geographic latitude coordinate of customer location"
+    },
+    "Longitude": {
+      "type": "continuous",
+      "description": "Geographic longitude coordinate of customer location"
+    },
+    "Postal code": {
+      "type": "discrete",
+      "description": "Customer's postal/ZIP code"
+    },
+    "Gender": {
+      "type": "discrete",
+      "description": "Customer's gender"
+    },
+    "Education": {
+      "type": "discrete",
+      "description": "Customer's highest education level (Bachelor, College, etc.)"
+    },
+    "Location Code": {
+      "type": "discrete",
+      "description": "Urban/Suburban/Rural classification of customer residence"
+    },
+    "Income": {
+      "type": "continuous",
+      "description": "Customer's annual income"
+    },
+    "Marital Status": {
+      "type": "discrete",
+      "description": "Customer's marital status (Married, Single, Divorced)"
+    },
+    "LoyaltyStatus": {
+      "type": "discrete",
+      "description": "Current tier status in loyalty program (Star > Nova > Aurora)"
+    },
+    "EnrollmentDateOpening": {
+      "type": "discrete",
+      "description": "Date when customer joined the loyalty program"
+    },
+    "CancellationDate": {
+      "type": "discrete",
+      "description": "Date when customer left the program"
+    },
+    "Customer Lifetime Value": {
+      "type": "continuous",
+      "description": "Total calculated monetary value of customer relationship"
+    },
+    "EnrollmentType": {
+      "type": "discrete",
+      "description": "Method of joining loyalty program"
+    }
+  },
+  "flights": {
+    "Loyalty#": {
+      "type": "discrete",
+      "description": "Unique customer identifier linking to CustomerDB"
+    },
+    "Year": {
+      "type": "discrete",
+      "description": "Year of flight activity record"
+    },
+    "Month": {
+      "type": "discrete",
+      "description": "Month of flight activity record (1-12)"
+    },
+    "YearMonthDate": {
+      "type": "discrete",
+      "description": "First day of the month for the activity period"
+    },
+    "NumFlights": {
+      "type": "continuous",
+      "description": "Total number of flights taken by customer in the month"
+    },
+    "NumFlightsWithCompanions": {
+      "type": "continuous",
+      "description": "Number of flights where customer traveled with companions"
+    },
+    "DistanceKM": {
+      "type": "continuous",
+      "description": "Total distance traveled in kilometers for the month"
+    },
+    "PointsAccumulated": {
+      "type": "continuous",
+      "description": "Loyalty points earned by customer during the month"
+    },
+    "PointsRedeemed": {
+      "type": "continuous",
+      "description": "Loyalty points spent/redeemed by customer during the month"
+    },
+    "DollarCostPointsRedeemed": {
+      "type": "continuous",
+      "description": "Dollar value of points redeemed during the month"
+    }
+  }
+}

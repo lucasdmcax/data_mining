@@ -18,6 +18,7 @@ flights_db = pd.read_csv(FLIGHTS_DATA_PATH)
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css, get_metric_html, get_info_box_html
+from utils import plot_data_distribution
 
 # Page configuration
 st.set_page_config(
@@ -116,8 +117,7 @@ with tab1:
 
         if customers_col != 'Loyalty#':
             st.write("**Distribution:**")
-            distribution = filtered_customers[customers_col].value_counts()
-            st.bar_chart(distribution)
+            plot_data_distribution(filtered_customers[customers_col], dataset='customers')
 
     with col2:
         # Calculate flights with duplicated ids

@@ -1,6 +1,8 @@
 import streamlit as st
 from styles import get_custom_css
 import os
+import base64
+from pathlib import Path
 
 # Page configuration
 st.set_page_config(
@@ -12,6 +14,15 @@ st.set_page_config(
 
 # Apply custom CSS
 st.markdown(get_custom_css(), unsafe_allow_html=True)
+
+# Function to convert image to base64
+def get_image_base64(image_path):
+    """Convert image to base64 for HTML embedding"""
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return None
 
 # Function to create team member card
 def create_team_card(name, student_number, image_filename=None):
@@ -26,9 +37,15 @@ def create_team_card(name, student_number, image_filename=None):
     Returns:
         str: HTML for the team member card
     """
-    # Check if image exists
-    if image_filename and os.path.exists(f"pics/{image_filename}"):
-        img_html = f'<img src="pics/{image_filename}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.5rem auto; display: block;">'
+    # Check if image exists and convert to base64
+    img_path = Path(__file__).parent / "pics" / image_filename if image_filename else None
+    
+    if img_path and img_path.exists():
+        img_base64 = get_image_base64(img_path)
+        if img_base64:
+            img_html = f'<img src="data:image/png;base64,{img_base64}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.5rem auto; display: block;">'
+        else:
+            img_html = '<div class="placeholder-img-compact">👤</div>'
     else:
         img_html = '<div class="placeholder-img-compact">👤</div>'
     
@@ -152,7 +169,7 @@ st.markdown('<div class="section-header">👥 Our Team</div>', unsafe_allow_html
 
 # Team members data - UPDATE THIS SECTION WITH YOUR TEAM INFO
 team_members = [
-    {"name": "Lucas Campos Ferreira", "student_number": "20250448", "image": None},
+    {"name": "Lucas Campos Ferreira", "student_number": "20250448", "image": "lucas.png"},
     {"name": "Student Name 2", "student_number": "23456789", "image": None},
     {"name": "Student Name 3", "student_number": "34567890", "image": None},
     {"name": "Student Name 4", "student_number": "45678901", "image": None}

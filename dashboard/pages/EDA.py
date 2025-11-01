@@ -34,7 +34,7 @@ st.markdown('<div class="main-header">📊 Exploratory Data Analysis</div>', uns
 st.markdown('<div class="sub-header">Initial exploration of customer data</div>', unsafe_allow_html=True)
 
 # Multitab Section
-tab1, tab2, tab3 = st.tabs(["🔍 Initial Inspection", "🗺️ Geospatial Analysis", "📈 Correlation Analysis"])
+tab1, tab2 = st.tabs(["🔍 Initial Inspection", "📈 Correlation Analysis"])
 
 # Tab 1: Initial Inspection
 with tab1:
@@ -43,7 +43,10 @@ with tab1:
     st.markdown(
         get_info_box_html(
             "About Initial Inspection",
-            "This section provides a first look at the customer and flight data, including basic statistics, data quality checks, and initial observations."
+            "This section provides a first look at the customer and flight data, " \
+            "you can filter the data by <strong>Loyalty#</strong> to inspect individual customer records and their associated flights. "\
+            "Also see distributions of key variables to understand data characteristics."
+
         ),
         unsafe_allow_html=True
     )
@@ -53,12 +56,12 @@ with tab1:
     # ==========================================
     # FILTER SECTION
     # ==========================================
-    st.markdown("#### 🔍 Filter Data")
+    st.markdown("#### 🔍 Filter Data by Loyalty#")
     
     # Loyalty# filter
     loyalty_options = ["All"] + sorted(customers_db['Loyalty#'].unique().tolist())
     selected_loyalty = st.selectbox(
-        "Filter by Loyalty#", 
+        "", 
         options=loyalty_options,
         help="Select a specific Loyalty# to filter both customer and flight data"
     )
@@ -148,50 +151,16 @@ with tab1:
         else:
             st.info("No flight records found for this Loyalty#.")
 
-# Tab 2: Geospatial Analysis
+
+# Tab 2: Correlation Analysis
 with tab2:
-    st.markdown("### Geographic Patterns")
-    
-    st.markdown(
-        get_info_box_html(
-            "About Geospatial Analysis",
-            "Explore geographic distribution of customers and flight routes." \
-            "Identify regional patterns and opportunities."
-        ),
-        unsafe_allow_html=True
-    )
-    
-    st.write("")
-
-    
-    # Placeholder for geospatial content
-    st.write("**Add your geospatial visualizations here:**")
-    st.write("")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("#### Customer Distribution")
-        st.write("- Geographic distribution of customers")
-        st.write("- Country/region analysis")
-        st.write("- Population density maps")
-        st.write("- Market penetration by region")
-    
-    with col2:
-        st.markdown("#### Flight Routes")
-        st.write("- Popular flight routes")
-        st.write("- Origin-destination patterns")
-        st.write("- Route frequency analysis")
-        st.write("- International vs domestic flights")
-
-# Tab 3: Correlation Analysis
-with tab3:
     st.markdown("### Variable Relationships")
     
     st.markdown(
         get_info_box_html(
             "About Correlation Analysis",
-            "Analyze relationships between variables to understand what drives customer loyalty, flight frequency, and spending patterns."
+            "Analyze relationships between variables to understand what drives customer loyalty," \
+            " flight frequency, and spending patterns."
         ),
         unsafe_allow_html=True
     )

@@ -4,6 +4,7 @@ Utility functions for the AIAI Customer Analytics Dashboard
 
 import streamlit as st
 import pandas as pd
+import altair as alt
 import json
 from pathlib import Path
 
@@ -38,7 +39,7 @@ def get_variable_type(column_name: str, dataset: str = 'customers') -> str:
 
 def plot_data_distribution(series: pd.Series, variable_type: str = None, title: str = None, dataset: str = 'customers'):
     """
-    Plot data distribution based on variable type using Streamlit native plots.
+    Plot data distribution based on variable type using Altair charts.
     Automatically determines type from metadata if not specified.
     
     Args:
@@ -63,31 +64,39 @@ def plot_data_distribution(series: pd.Series, variable_type: str = None, title: 
     if variable_type is None:
         variable_type = get_variable_type(series.name, dataset)
     
-    # Display title if provided
-    if title:
-        st.write(f"**{title}**")
-    else:
-        st.write(f"**Distribution of {series.name}**")
+    # Display title
+    st.write(f"**{title if title else f'Distribution of {series.name}'}**")
+    
+    # Prepare data - drop nulls
+    clean_data = series.dropna()
     
     # Plot based on variable type
     if variable_type == 'discrete':
-        # Bar chart for discrete variables, sorted by count (descending)
-        value_counts = series.value_counts()
-        st.bar_chart(value_counts, x_label=series.name, y_label='Count')
+        # Pre-aggregate for discrete variables - much faster
+        value_counts = clean_data.value_counts().reset_index()
+        value_counts.columns = [series.name, 'Count']
+        
+        chart = alt.Chart(value_counts).mark_bar().encode(
+            x=alt.X(f'{series.name}:N', sort='-y', title=series.name),
+            y=alt.Y('Count:Q', title='Count')
+        ).properties(height=400)
         
     elif variable_type == 'continuous':
-        # Histogram for continuous variables using 30 bins
-        hist_data, bin_edges = pd.cut(series.dropna(), bins=30, retbins=True)
-        hist_counts = hist_data.value_counts().sort_index()
+        # Sample large datasets for faster rendering
+        if len(clean_data) > 5000:
+            clean_data = clean_data.sample(n=5000, random_state=42)
         
-        # Create DataFrame with proper column name for the histogram
-        hist_df = pd.DataFrame({
-            series.name: [f"[{round(bin_edges[i])},{round(bin_edges[i+1])}]" for i in range(len(bin_edges)-1)],
-            'Count': hist_counts.values
-        })
-        hist_df = hist_df.set_index(series.name)
-        
-        st.bar_chart(hist_df, y_label='Count')
+        df = clean_data.to_frame()
+        chart = alt.Chart(df).mark_bar().encode(
+            x=alt.X(f'{series.name}:Q',
+                    bin=alt.Bin(maxbins=30),
+                    title=series.name),
+            y=alt.Y('count()', title='Count')
+        ).properties(height=400)
         
     else:
         st.error(f"Invalid variable_type: {variable_type}. Must be 'discrete' or 'continuous'.")
+        return
+    
+    # Disable Altair's max rows warning and render
+    st.altair_chart(chart.configure_axis(labelLimit=500), use_container_width=True)

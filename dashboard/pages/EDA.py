@@ -50,19 +50,46 @@ with tab1:
     
     st.write("")
     
-    # Placeholder for data inspection content
+    # ==========================================
+    # FILTER SECTION
+    # ==========================================
+    st.markdown("#### 🔍 Filter Data")
+    
+    # Loyalty# filter
+    loyalty_options = ["All"] + sorted(customers_db['Loyalty#'].unique().tolist())
+    selected_loyalty = st.selectbox(
+        "Filter by Loyalty#", 
+        options=loyalty_options,
+        help="Select a specific Loyalty# to filter both customer and flight data"
+    )
+    
+    # Apply filter
+    if selected_loyalty != "All":
+        filtered_customers = customers_db[customers_db['Loyalty#'] == selected_loyalty]
+        filtered_flights = flights_db[flights_db['Loyalty#'] == selected_loyalty]
+    else:
+        filtered_customers = customers_db
+        filtered_flights = flights_db
+    
+    st.write("")
+    
+    # ==========================================
+    # DATA DISPLAY SECTION
+    # ==========================================
     col1, col2 = st.columns(2)
     
     with col1:
-        # Calculate duplicated loyalty IDs and store in session state
+        # Calculate duplicated loyalty IDs
         if 'duplicated_loyalty_ids' not in st.session_state:
-            st.session_state.duplicated_loyalty_ids = customers_db[customers_db['Loyalty#'].duplicated()]['Loyalty#'].unique()
+            st.session_state.duplicated_loyalty_ids = customers_db[
+                customers_db['Loyalty#'].duplicated()
+            ]['Loyalty#'].unique()
 
         st.markdown(
             get_metric_html(
                 "Customer Data",
                 "Customer records overview",
-                number_of_customers=customers_db.shape[0],
+                number_of_customers=filtered_customers.shape[0],
                 duplicated_loyalty_ids=len(st.session_state.duplicated_loyalty_ids),
             ),
             unsafe_allow_html=True
@@ -70,39 +97,56 @@ with tab1:
 
         st.write("")
 
-        customers_number_rows = st.number_input("Number of customer rows to display", value=5, min_value=1, max_value=customers_db.shape[0], step=1)
-        st.dataframe(customers_db.head(customers_number_rows))
+        customers_number_rows = st.number_input(
+            "Number of customer rows to display", 
+            value=min(5, filtered_customers.shape[0]), 
+            min_value=1, 
+            max_value=filtered_customers.shape[0], 
+            step=1
+        )
+        st.dataframe(filtered_customers.head(customers_number_rows))
 
-        customers_col = st.selectbox("Select column to view distribution", options=customers_db.columns.tolist())
+        customers_col = st.selectbox(
+            "Select column to view distribution", 
+            options=filtered_customers.columns.tolist()
+        )
 
         if customers_col != 'Loyalty#':
             st.write("**Distribution:**")
-            # Sort the value counts by the index (the column's values)
-            distribution = customers_db[customers_col].value_counts()
+            distribution = filtered_customers[customers_col].value_counts()
             st.bar_chart(distribution)
 
     with col2:
-        # calculate flights with duplicated ids:
+        # Calculate flights with duplicated ids
         if 'flights_duplicated_id' not in st.session_state:
-         st.session_state.flights_duplicated_id = flights_db[flights_db['Loyalty#']\
-                                                              .isin(st.session_state.duplicated_loyalty_ids)]\
-                                                              .shape[0]
+            st.session_state.flights_duplicated_id = flights_db[
+                flights_db['Loyalty#'].isin(st.session_state.duplicated_loyalty_ids)
+            ].shape[0]
 
         st.markdown(
             get_metric_html(
                 "Flight Data",
                 "Flight records overview",
-                number_of_flights=flights_db.shape[0],
+                number_of_flights=filtered_flights.shape[0],
                 number_of_flights_from_duplicated_ids=st.session_state.flights_duplicated_id,
-                
             ),
             unsafe_allow_html=True
         )
         st.write("")
 
-        flights_number_rows = st.number_input("Number of flight rows to display", value=5, min_value=1, max_value=flights_db.shape[0], step=1)
+        flights_number_rows = st.number_input(
+            "Number of flight rows to display", 
+            value=min(5, max(1, filtered_flights.shape[0])), 
+            min_value=1, 
+            max_value=max(1, filtered_flights.shape[0]), 
+            step=1,
+            disabled=(filtered_flights.shape[0] == 0)
+        )
         
-        st.dataframe(flights_db.head(flights_number_rows))
+        if filtered_flights.shape[0] > 0:
+            st.dataframe(filtered_flights.head(flights_number_rows))
+        else:
+            st.info("No flight records found for this Loyalty#.")
 
 # Tab 2: Geospatial Analysis
 with tab2:

@@ -12,8 +12,8 @@ FLIGHTS_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "DM_AIAI_Flig
 CUSTOMERS_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "DM_AIAI_CustomerDB.csv"
 
 # load datasets
-customers_df = pd.read_csv(CUSTOMERS_DATA_PATH)
-flights_df = pd.read_csv(FLIGHTS_DATA_PATH)
+customers_db = pd.read_csv(CUSTOMERS_DATA_PATH, index_col=0).sort_values(by='Loyalty#')
+flights_db = pd.read_csv(FLIGHTS_DATA_PATH)
 
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
@@ -54,15 +54,34 @@ with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
+        # Calculate duplicated customer IDs and store in session state
+        if 'duplicated_customer_id' not in st.session_state:
+            st.session_state.duplicated_customer_id = customers_db[customers_db['Loyalty#'].duplicated()]['Loyalty#'].unique()
+    
         
         st.markdown(
             get_metric_html(
                 "Customer Data",
-                "Dataset dimensions, missing values, and key statistics"
+                "Dataset dimensions, missing values, and key statistics",
+                number_of_customers=customers_db.shape[0],
+                duplicated_customer_id=len(st.session_state.duplicated_customer_id),
             ),
             unsafe_allow_html=True
         )
-        
+
+        st.write("")
+
+        customers_number_rows = st.number_input("Number of customer rows to display", value=5, min_value=1, max_value=customers_db.shape[0], step=1)
+        st.dataframe(customers_db.head(customers_number_rows))
+
+        col = st.selectbox("Select column to view distribution", options=customers_db.columns.tolist())
+
+        if col != 'Loyalty#':
+            st.write("**Distribution:**")
+            # Sort the value counts by the index (the column's values)
+            distribution = customers_db[col].value_counts().sort_index()
+            st.bar_chart(distribution)
+
     with col2:
         st.markdown(
             get_metric_html(

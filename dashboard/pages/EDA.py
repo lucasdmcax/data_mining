@@ -149,16 +149,19 @@ with tab1:
         
         if filtered_flights.shape[0] > 0:
             st.dataframe(filtered_flights.head(flights_number_rows))
-        else:
-            st.info("No flight records found for this Loyalty#.")
-        flights_col = st.selectbox(
+            
+            flights_col = st.selectbox(
             "Select column to view distribution", 
             options=filtered_flights.columns.tolist()
-        )
+            )
+            if flights_col != 'Loyalty#':
+                st.write("**Distribution:**")
+                plot_data_distribution(filtered_flights[flights_col], dataset='flights')
+        else:
+            st.info("No flight records found for this Loyalty#.")
+        
 
-        if flights_col != 'Loyalty#':
-            st.write("**Distribution:**")
-            plot_data_distribution(filtered_flights[flights_col], dataset='flights')
+        
 
 
 # Tab 2: Correlation Analysis

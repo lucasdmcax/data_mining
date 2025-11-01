@@ -82,7 +82,7 @@ def plot_data_distribution(series: pd.Series, variable_type: str = None, title: 
         
         # Create DataFrame with proper column name for the histogram
         hist_df = pd.DataFrame({
-            series.name: [round((bin_edges[i] + bin_edges[i+1]) / 2, -3) for i in range(len(bin_edges)-1)],
+            series.name: [f"[{round(bin_edges[i])},{round(bin_edges[i+1])}]" for i in range(len(bin_edges)-1)],
             'Count': hist_counts.values
         })
         hist_df = hist_df.set_index(series.name)

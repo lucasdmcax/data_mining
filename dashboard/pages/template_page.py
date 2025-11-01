@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
-from styles import get_custom_css
+from styles import get_custom_css, get_metric_html, get_info_box_html
 
 # Page configuration
 st.set_page_config(
@@ -31,37 +31,20 @@ st.markdown('<div class="section-header">Section Header</div>', unsafe_allow_htm
 # Your content here
 st.write("Add your content here...")
 
-# Example of using info box
-st.markdown("""
-    <div class="info-box">
-        <h3 style="color: #1f4788;">Information Box</h3>
-        <p>Use this for important information or callouts.</p>
-    </div>
-""", unsafe_allow_html=True)
+# Example of using info box with centralized colors
+st.markdown(
+    get_info_box_html("Information Box", "Use this for important information or callouts."),
+    unsafe_allow_html=True
+)
 
-# Example of using metric containers
+# Example of using metric containers with centralized colors
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.markdown("""
-        <div class="metric-container">
-            <h2 style="color: #1f4788;">Metric 1</h2>
-            <p style="color: #5a6c7d;">Description</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(get_metric_html("Metric 1", "Description"), unsafe_allow_html=True)
 
 with col2:
-    st.markdown("""
-        <div class="metric-container">
-            <h2 style="color: #1f4788;">Metric 2</h2>
-            <p style="color: #5a6c7d;">Description</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(get_metric_html("Metric 2", "Description"), unsafe_allow_html=True)
 
 with col3:
-    st.markdown("""
-        <div class="metric-container">
-            <h2 style="color: #1f4788;">Metric 3</h2>
-            <p style="color: #5a6c7d;">Description</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(get_metric_html("Metric 3", "Description"), unsafe_allow_html=True)

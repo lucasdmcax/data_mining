@@ -43,6 +43,62 @@ BORDER_RADIUS_MD = "15px"
 BORDER_RADIUS_LG = "20px"
 
 
+# ==========================================
+# HELPER FUNCTIONS FOR COMMON COMPONENTS
+# ==========================================
+
+def get_metric_html(title, description):
+    """
+    Generate HTML for a metric container with centralized colors.
+    
+    Args:
+        title (str): The main metric value or title
+        description (str): Description text below the title
+    
+    Returns:
+        str: HTML for metric container
+    """
+    return f"""
+        <div class="metric-container">
+            <h2 style="color: {PRIMARY_BLUE};">{title}</h2>
+            <p style="color: {SECONDARY_GRAY};">{description}</p>
+        </div>
+    """
+
+
+def get_info_box_html(title, content):
+    """
+    Generate HTML for an info box with centralized colors.
+    
+    Args:
+        title (str): The info box title
+        content (str): The content text
+    
+    Returns:
+        str: HTML for info box
+    """
+    return f"""
+        <div class="info-box">
+            <h3 style="color: {PRIMARY_BLUE};">{title}</h3>
+            <p>{content}</p>
+        </div>
+    """
+
+
+def get_section_title_html(icon, title):
+    """
+    Generate HTML for a section title with icon.
+    
+    Args:
+        icon (str): Emoji or icon
+        title (str): Section title text
+    
+    Returns:
+        str: HTML for section title
+    """
+    return f'<h4 style="color: {PRIMARY_BLUE};">{icon} {title}</h4>'
+
+
 def get_custom_css():
     """
     Returns the custom CSS styling for the entire dashboard.

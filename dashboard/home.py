@@ -1,5 +1,5 @@
 import streamlit as st
-from styles import get_custom_css
+from styles import get_custom_css, get_metric_html
 import os
 import base64
 from pathlib import Path
@@ -108,28 +108,13 @@ st.markdown('<div class="section-header">📁 Data Scope</div>', unsafe_allow_ht
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.markdown("""
-        <div class="metric-container">
-            <h2 style="color: #1f4788;">3 Years</h2>
-            <p style="color: #5a6c7d;">Historical Data Period</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(get_metric_html("3 Years", "Historical Data Period"), unsafe_allow_html=True)
 
 with col2:
-    st.markdown("""
-        <div class="metric-container">
-            <h2 style="color: #1f4788;">2 Datasets</h2>
-            <p style="color: #5a6c7d;">Customer & Flight Records</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(get_metric_html("2 Datasets", "Customer & Flight Records"), unsafe_allow_html=True)
 
 with col3:
-    st.markdown("""
-        <div class="metric-container">
-            <h2 style="color: #1f4788;">360° View</h2>
-            <p style="color: #5a6c7d;">Comprehensive Customer Profile</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(get_metric_html("360° View", "Comprehensive Customer Profile"), unsafe_allow_html=True)
 
 st.write("")
 

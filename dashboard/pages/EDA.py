@@ -1,6 +1,5 @@
 """
-Template page for creating new pages in the dashboard.
-Copy this template and modify as needed.
+Exploratory Data Analysis page for the dashboard.
 """
 
 import streamlit as st
@@ -9,11 +8,11 @@ from pathlib import Path
 
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
-from styles import get_custom_css
+from styles import get_custom_css, get_metric_html, get_info_box_html
 
 # Page configuration
 st.set_page_config(
-    page_title="Page Title - AIAI Analytics",
+    page_title="EDA - AIAI Analytics",
     page_icon="📊",
     layout="wide"
 )
@@ -32,13 +31,13 @@ tab1, tab2, tab3 = st.tabs(["🔍 Initial Inspection", "🗺️ Geospatial Analy
 with tab1:
     st.markdown("### Dataset Overview")
     
-    st.markdown("""
-        <div class="info-box">
-            <h4 style="color: #1f4788;">About Initial Inspection</h4>
-            <p>This section provides a first look at the customer and flight data, including 
-            basic statistics, data quality checks, and initial observations.</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        get_info_box_html(
+            "About Initial Inspection",
+            "This section provides a first look at the customer and flight data, including basic statistics, data quality checks, and initial observations."
+        ),
+        unsafe_allow_html=True
+    )
     
     st.write("")
     
@@ -46,12 +45,13 @@ with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("""
-            <div class="metric-container">
-                <h3 style="color: #1f4788;">Customer Data</h3>
-                <p style="color: #5a6c7d;">Dataset dimensions, missing values, and key statistics</p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            get_metric_html(
+                "Customer Data",
+                "Dataset dimensions, missing values, and key statistics"
+            ),
+            unsafe_allow_html=True
+        )
         
         st.write("")
         st.write("**Add your customer data inspection here:**")
@@ -61,12 +61,13 @@ with tab1:
         st.write("- Basic statistics")
     
     with col2:
-        st.markdown("""
-            <div class="metric-container">
-                <h3 style="color: #1f4788;">Flight Data</h3>
-                <p style="color: #5a6c7d;">Flight records overview and data quality</p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            get_metric_html(
+                "Flight Data",
+                "Flight records overview and data quality"
+            ),
+            unsafe_allow_html=True
+        )
         
         st.write("")
         st.write("**Add your flight data inspection here:**")
@@ -79,13 +80,13 @@ with tab1:
 with tab2:
     st.markdown("### Geographic Patterns")
     
-    st.markdown("""
-        <div class="info-box">
-            <h4 style="color: #1f4788;">About Geospatial Analysis</h4>
-            <p>Explore geographic distribution of customers and flight routes. 
-            Identify regional patterns and opportunities.</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        get_info_box_html(
+            "About Geospatial Analysis",
+            "Explore geographic distribution of customers and flight routes. Identify regional patterns and opportunities."
+        ),
+        unsafe_allow_html=True
+    )
     
     st.write("")
     
@@ -113,13 +114,13 @@ with tab2:
 with tab3:
     st.markdown("### Variable Relationships")
     
-    st.markdown("""
-        <div class="info-box">
-            <h4 style="color: #1f4788;">About Correlation Analysis</h4>
-            <p>Analyze relationships between variables to understand what drives customer loyalty, 
-            flight frequency, and spending patterns.</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        get_info_box_html(
+            "About Correlation Analysis",
+            "Analyze relationships between variables to understand what drives customer loyalty, flight frequency, and spending patterns."
+        ),
+        unsafe_allow_html=True
+    )
     
     st.write("")
     

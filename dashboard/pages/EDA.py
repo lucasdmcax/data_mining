@@ -7,8 +7,13 @@ import sys
 import pandas as pd
 from pathlib import Path
 
-FLITGHTS_DATA_PATH = Path(__file__).parent.parent / "data" / "flights.csv"
-CUSTOMERS_DATA_PATH = Path(__file__).parent.parent / "data" / "customers.csv"
+# Correct paths - data is in the parent directory of dashboard
+FLIGHTS_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "DM_AIAI_FlightsDB.csv"
+CUSTOMERS_DATA_PATH = Path(__file__).parent.parent.parent / "data" / "DM_AIAI_CustomerDB.csv"
+
+# load datasets
+customers_df = pd.read_csv(CUSTOMERS_DATA_PATH)
+flights_df = pd.read_csv(FLIGHTS_DATA_PATH)
 
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
@@ -49,6 +54,7 @@ with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
+        
         st.markdown(
             get_metric_html(
                 "Customer Data",

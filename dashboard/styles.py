@@ -118,5 +118,12 @@ def get_custom_css():
         color: #1f4788;
         margin-top: 0.5rem;
     }
+    
+    .student-number-compact {
+        font-size: 0.9rem;
+        color: #5a6c7d;
+        margin-top: 0.3rem;
+        font-style: italic;
+    }
     </style>
     """

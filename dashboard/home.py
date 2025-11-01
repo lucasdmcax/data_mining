@@ -1,5 +1,6 @@
 import streamlit as st
 from styles import get_custom_css
+import os
 
 # Page configuration
 st.set_page_config(
@@ -11,6 +12,33 @@ st.set_page_config(
 
 # Apply custom CSS
 st.markdown(get_custom_css(), unsafe_allow_html=True)
+
+# Function to create team member card
+def create_team_card(name, student_number, image_filename=None):
+    """
+    Create a team member card HTML.
+    
+    Args:
+        name (str): Student name
+        student_number (str): Student number
+        image_filename (str): Filename of image in pics folder (optional)
+    
+    Returns:
+        str: HTML for the team member card
+    """
+    # Check if image exists
+    if image_filename and os.path.exists(f"pics/{image_filename}"):
+        img_html = f'<img src="pics/{image_filename}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.5rem auto; display: block;">'
+    else:
+        img_html = '<div class="placeholder-img-compact">👤</div>'
+    
+    return f"""
+        <div class="team-card-compact">
+            {img_html}
+            <div class="student-name-compact">{name}</div>
+            <div class="student-number-compact">{student_number}</div>
+        </div>
+    """
 
 # Header Section
 st.markdown('<div class="main-header">✈️ AIAI Customer Loyalty Analytics</div>', unsafe_allow_html=True)
@@ -122,39 +150,28 @@ st.write("")
 # Team Section
 st.markdown('<div class="section-header">👥 Our Team</div>', unsafe_allow_html=True)
 
+# Team members data - UPDATE THIS SECTION WITH YOUR TEAM INFO
+team_members = [
+    {"name": "Lucas Campos Ferreira", "student_number": "20250448", "image": None},
+    {"name": "Student Name 2", "student_number": "23456789", "image": None},
+    {"name": "Student Name 3", "student_number": "34567890", "image": None},
+    {"name": "Student Name 4", "student_number": "45678901", "image": None}
+]
+
+# Display team cards
 col1, col2, col3, col4 = st.columns(4)
+columns = [col1, col2, col3, col4]
 
-with col1:
-    st.markdown("""
-        <div class="team-card-compact">
-            <div class="placeholder-img-compact">👤</div>
-            <div class="student-name-compact">Student Name 1</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown("""
-        <div class="team-card-compact">
-            <div class="placeholder-img-compact">👤</div>
-            <div class="student-name-compact">Student Name 2</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col3:
-    st.markdown("""
-        <div class="team-card-compact">
-            <div class="placeholder-img-compact">👤</div>
-            <div class="student-name-compact">Student Name 3</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown("""
-        <div class="team-card-compact">
-            <div class="placeholder-img-compact">👤</div>
-            <div class="student-name-compact">Student Name 4</div>
-        </div>
-    """, unsafe_allow_html=True)
+for idx, member in enumerate(team_members):
+    with columns[idx]:
+        st.markdown(
+            create_team_card(
+                member["name"], 
+                member["student_number"], 
+                member["image"]
+            ), 
+            unsafe_allow_html=True
+        )
 
 st.write("")
 st.write("")

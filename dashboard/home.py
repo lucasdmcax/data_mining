@@ -155,9 +155,9 @@ st.markdown('<div class="section-header">👥 Our Team</div>', unsafe_allow_html
 # Team members data - UPDATE THIS SECTION WITH YOUR TEAM INFO
 team_members = [
     {"name": "Lucas Campos Ferreira", "student_number": "20250448", "image": "lucas.png"},
-    {"name": "Student Name 2", "student_number": "23456789", "image": None},
-    {"name": "Student Name 3", "student_number": "34567890", "image": None},
-    {"name": "Student Name 4", "student_number": "45678901", "image": None}
+    {"name": "João Paulo de Avila", "student_number": "20250436", "image": "joao.jpeg"},
+    {"name": "Leonor", "student_number": "34567890", "image": None},
+    {"name": "Gonçalo", "student_number": "20250365", "image": None}
 ]
 
 # Display team cards

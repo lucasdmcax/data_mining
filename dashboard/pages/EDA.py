@@ -54,17 +54,16 @@ with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
-        # Calculate duplicated customer IDs and store in session state
-        if 'duplicated_customer_id' not in st.session_state:
-            st.session_state.duplicated_customer_id = customers_db[customers_db['Loyalty#'].duplicated()]['Loyalty#'].unique()
-    
-        
+        # Calculate duplicated loyalty IDs and store in session state
+        if 'duplicated_loyalty_ids' not in st.session_state:
+            st.session_state.duplicated_loyalty_ids = customers_db[customers_db['Loyalty#'].duplicated()]['Loyalty#'].unique()
+
         st.markdown(
             get_metric_html(
                 "Customer Data",
-                "Dataset dimensions, missing values, and key statistics",
+                "Customer records overview",
                 number_of_customers=customers_db.shape[0],
-                duplicated_customer_id=len(st.session_state.duplicated_customer_id),
+                duplicated_loyalty_ids=len(st.session_state.duplicated_loyalty_ids),
             ),
             unsafe_allow_html=True
         )
@@ -74,29 +73,36 @@ with tab1:
         customers_number_rows = st.number_input("Number of customer rows to display", value=5, min_value=1, max_value=customers_db.shape[0], step=1)
         st.dataframe(customers_db.head(customers_number_rows))
 
-        col = st.selectbox("Select column to view distribution", options=customers_db.columns.tolist())
+        customers_col = st.selectbox("Select column to view distribution", options=customers_db.columns.tolist())
 
-        if col != 'Loyalty#':
+        if customers_col != 'Loyalty#':
             st.write("**Distribution:**")
             # Sort the value counts by the index (the column's values)
-            distribution = customers_db[col].value_counts().sort_index()
+            distribution = customers_db[customers_col].value_counts()
             st.bar_chart(distribution)
 
     with col2:
+        # calculate flights with duplicated ids:
+        if 'flights_duplicated_id' not in st.session_state:
+         st.session_state.flights_duplicated_id = flights_db[flights_db['Loyalty#']\
+                                                              .isin(st.session_state.duplicated_loyalty_ids)]\
+                                                              .shape[0]
+
         st.markdown(
             get_metric_html(
                 "Flight Data",
-                "Flight records overview and data quality"
+                "Flight records overview",
+                number_of_flights=flights_db.shape[0],
+                number_of_flights_from_duplicated_ids=st.session_state.flights_duplicated_id,
+                
             ),
             unsafe_allow_html=True
         )
-        
         st.write("")
-        st.write("**Add your flight data inspection here:**")
-        st.write("- Data shape and size")
-        st.write("- Column types and descriptions")
-        st.write("- Missing value analysis")
-        st.write("- Basic statistics")
+
+        flights_number_rows = st.number_input("Number of flight rows to display", value=5, min_value=1, max_value=flights_db.shape[0], step=1)
+        
+        st.dataframe(flights_db.head(flights_number_rows))
 
 # Tab 2: Geospatial Analysis
 with tab2:
@@ -105,12 +111,14 @@ with tab2:
     st.markdown(
         get_info_box_html(
             "About Geospatial Analysis",
-            "Explore geographic distribution of customers and flight routes. Identify regional patterns and opportunities."
+            "Explore geographic distribution of customers and flight routes." \
+            "Identify regional patterns and opportunities."
         ),
         unsafe_allow_html=True
     )
     
     st.write("")
+
     
     # Placeholder for geospatial content
     st.write("**Add your geospatial visualizations here:**")

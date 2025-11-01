@@ -2,124 +2,154 @@
   "customers": {
     "Loyalty#": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Unique customer identifier for loyalty program members"
     },
     "First Name": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's first name"
     },
     "Last Name": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's last name"
     },
     "Customer Name": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's full name (concatenated)"
     },
     "Country": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's country of residence"
     },
     "Province or State": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's province or state"
     },
     "City": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's city of residence"
     },
     "Latitude": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Geographic latitude coordinate of customer location"
     },
     "Longitude": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Geographic longitude coordinate of customer location"
     },
     "Postal code": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's postal/ZIP code"
     },
     "Gender": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's gender"
     },
     "Education": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's highest education level (Bachelor, College, etc.)"
     },
     "Location Code": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Urban/Suburban/Rural classification of customer residence"
     },
     "Income": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Customer's annual income"
     },
     "Marital Status": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Customer's marital status (Married, Single, Divorced)"
     },
     "LoyaltyStatus": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Current tier status in loyalty program (Star > Nova > Aurora)"
     },
     "EnrollmentDateOpening": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Date when customer joined the loyalty program"
     },
     "CancellationDate": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Date when customer left the program"
     },
     "Customer Lifetime Value": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Total calculated monetary value of customer relationship"
     },
     "EnrollmentType": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Method of joining loyalty program"
     }
   },
   "flights": {
     "Loyalty#": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Unique customer identifier linking to CustomerDB"
     },
     "Year": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Year of flight activity record"
     },
     "Month": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "Month of flight activity record (1-12)"
     },
     "YearMonthDate": {
       "type": "discrete",
+      "data_class": "categorical",
       "description": "First day of the month for the activity period"
     },
     "NumFlights": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Total number of flights taken by customer in the month"
     },
     "NumFlightsWithCompanions": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Number of flights where customer traveled with companions"
     },
     "DistanceKM": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Total distance traveled in kilometers for the month"
     },
     "PointsAccumulated": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Loyalty points earned by customer during the month"
     },
     "PointsRedeemed": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Loyalty points spent/redeemed by customer during the month"
     },
     "DollarCostPointsRedeemed": {
       "type": "continuous",
+      "data_class": "numerical",
       "description": "Dollar value of points redeemed during the month"
     }
   }

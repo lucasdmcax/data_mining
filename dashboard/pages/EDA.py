@@ -18,7 +18,7 @@ flights_db = pd.read_csv(FLIGHTS_DATA_PATH)
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css, get_metric_html, get_info_box_html
-from utils import plot_data_distribution
+from utils import plot_data_distribution, plot_correlation_analysis
 
 # Page configuration
 st.set_page_config(
@@ -149,7 +149,7 @@ with tab1:
         
         if filtered_flights.shape[0] > 0:
             st.dataframe(filtered_flights.head(flights_number_rows))
-            
+
             flights_col = st.selectbox(
             "Select column to view distribution", 
             options=filtered_flights.columns.tolist()
@@ -171,30 +171,55 @@ with tab2:
     st.markdown(
         get_info_box_html(
             "About Correlation Analysis",
-            "Analyze relationships between variables to understand what drives customer loyalty," \
-            " flight frequency, and spending patterns."
+            "Analyze relationships between variables to understand what drives customer loyalty, " \
+            "flight frequency, and spending patterns. Select two features from a dataset to explore their relationship."
         ),
         unsafe_allow_html=True
     )
     
     st.write("")
     
-    # Placeholder for correlation content
-    st.write("**Add your correlation analysis here:**")
+    # Dataset selection
+    st.markdown("#### Select Dataset")
+    dataset_choice = st.radio(
+        "",
+        options=["Customers", "Flights"],
+        horizontal=True,
+        help="Choose which dataset to analyze"
+    )
+    
+    # Get the appropriate dataframe and dataset name
+    if dataset_choice == "Customers":
+        analysis_df = filtered_customers
+        dataset_name = 'customers'
+    else:
+        analysis_df = filtered_flights
+        dataset_name = 'flights'
+    
     st.write("")
     
+    # Feature selection
+    st.markdown("#### Select Features to Compare")
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("#### Customer Attributes")
-        st.write("- Age vs loyalty metrics")
-        st.write("- Income vs spending")
-        st.write("- Membership duration vs activity")
-        st.write("- Demographics correlations")
+        feature1 = st.selectbox(
+            "First Feature",
+            options=analysis_df.columns.tolist(),
+            help="Select the first variable for comparison"
+        )
     
     with col2:
-        st.markdown("#### Flight Behavior")
-        st.write("- Flight frequency vs spending")
-        st.write("- Distance vs ticket price")
-        st.write("- Seasonality patterns")
-        st.write("- Booking patterns vs loyalty")
+        # Exclude the already selected feature from second dropdown
+        available_features = [col for col in analysis_df.columns.tolist() if col != feature1]
+        feature2 = st.selectbox(
+            "Second Feature",
+            options=available_features,
+            help="Select the second variable for comparison"
+        )
+    
+    st.write("")
+    
+    # Show the correlation analysis
+    if feature1 and feature2:
+        plot_correlation_analysis(analysis_df, feature1, feature2, dataset=dataset_name)

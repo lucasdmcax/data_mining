@@ -43,19 +43,6 @@ from styles import get_custom_css
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 ```
 
-### Available CSS Classes
-
-- `.main-header` - Large centered headers
-- `.sub-header` - Subtitle text
-- `.section-header` - Section dividers with underline
-- `.info-box` - Information callout boxes
-- `.metric-container` - Metric display boxes
-- `.team-card` - Full team member cards (for about_us page)
-- `.team-card-compact` - Compact team cards (for home page)
-- `.placeholder-img` - Large profile picture placeholder
-- `.placeholder-img-compact` - Small profile picture placeholder
-- `.student-name` - Team member name styling
-
 ## Pages Overview
 
 ### Home Page (`home.py`)
@@ -65,15 +52,6 @@ The main landing page featuring:
 - Methodology overview
 - Compact team member display
 - Navigation guide
-
-## Color Palette
-
-- Primary Blue: `#1f4788`
-- Secondary Gray: `#5a6c7d`
-- Background: `#f0f4f8`
-- Gradient: `#667eea` to `#764ba2`
-
-## Customization
 
 ### Update Team Members
 Edit student names in:

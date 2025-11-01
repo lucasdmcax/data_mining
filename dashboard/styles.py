@@ -2,128 +2,207 @@
 Centralized styles for the AIAI Customer Analytics Dashboard
 """
 
+# ==========================================
+# COLOR PALETTE - CUSTOMIZE HERE
+# ==========================================
+
+# Primary Colors
+PRIMARY_BLUE = "#1f4788"
+PRIMARY_BLUE_DARK = "#163561"
+PRIMARY_BLUE_LIGHT = "#2d5ba8"
+
+# Secondary Colors
+SECONDARY_GRAY = "#5a6c7d"
+SECONDARY_GRAY_LIGHT = "#8b99a8"
+SECONDARY_GRAY_DARK = "#3d4a56"
+
+# Background Colors
+BG_WHITE = "#ffffff"
+BG_LIGHT_BLUE = "#f0f4f8"
+BG_OFF_WHITE = "#fafbfc"
+
+# Gradient Colors
+GRADIENT_START = "#667eea"
+GRADIENT_END = "#764ba2"
+
+# Text Colors
+TEXT_PRIMARY = "#2c3e50"
+TEXT_SECONDARY = "#5a6c7d"
+TEXT_LIGHT = "#8b99a8"
+TEXT_WHITE = "#ffffff"
+
+# Shadows
+SHADOW_LIGHT = "rgba(0, 0, 0, 0.08)"
+SHADOW_MEDIUM = "rgba(0, 0, 0, 0.1)"
+SHADOW_DARK = "rgba(0, 0, 0, 0.15)"
+
+# Border & Radius
+BORDER_COLOR = "#e1e8ed"
+BORDER_RADIUS_SM = "10px"
+BORDER_RADIUS_MD = "15px"
+BORDER_RADIUS_LG = "20px"
+
+
 def get_custom_css():
     """
     Returns the custom CSS styling for the entire dashboard.
     Import this function and apply it to any page for consistent styling.
+    All colors are defined as Python variables at the top of this file.
     """
     return """
     <style>
-    /* Main Headers */
-    .main-header {
+    /* ==========================================
+       MAIN HEADERS
+       ========================================== */
+    .main-header {{
         font-size: 3rem;
         font-weight: bold;
-        color: #1f4788;
+        color: {primary_blue};
         text-align: center;
         margin-bottom: 0.5rem;
-    }
+    }}
     
-    .sub-header {
+    .sub-header {{
         font-size: 1.5rem;
-        color: #5a6c7d;
+        color: {secondary_gray};
         text-align: center;
         margin-bottom: 2rem;
-    }
+    }}
     
-    .section-header {
+    .section-header {{
         font-size: 1.8rem;
         font-weight: bold;
-        color: #1f4788;
+        color: {primary_blue};
         margin-top: 2rem;
         margin-bottom: 1rem;
-        border-bottom: 3px solid #1f4788;
+        border-bottom: 3px solid {primary_blue};
         padding-bottom: 0.5rem;
-    }
+    }}
     
-    /* Containers and Boxes */
-    .info-box {
-        background-color: #f0f4f8;
+    /* ==========================================
+       CONTAINERS AND BOXES
+       ========================================== */
+    .info-box {{
+        background-color: {bg_light_blue};
         padding: 1.5rem;
-        border-radius: 10px;
-        border-left: 5px solid #1f4788;
+        border-radius: {border_radius_sm};
+        border-left: 5px solid {primary_blue};
         margin: 1rem 0;
-    }
+    }}
     
-    .metric-container {
-        background-color: #ffffff;
+    .metric-container {{
+        background-color: {bg_white};
         padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: {border_radius_sm};
+        box-shadow: 0 2px 4px {shadow_medium};
         text-align: center;
-    }
+    }}
     
-    /* Team Cards */
-    .team-card {
-        background-color: #ffffff;
+    /* ==========================================
+       TEAM CARDS (Full Size)
+       ========================================== */
+    .team-card {{
+        background-color: {bg_white};
         padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: {border_radius_md};
+        box-shadow: 0 4px 6px {shadow_medium};
         text-align: center;
         height: 100%;
-        transition: transform 0.3s ease;
-    }
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }}
     
-    .team-card:hover {
+    .team-card:hover {{
         transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
+        box-shadow: 0 6px 12px {shadow_dark};
+    }}
     
-    .student-name {
+    .student-name {{
         font-size: 1.5rem;
         font-weight: bold;
-        color: #1f4788;
+        color: {primary_blue};
         margin-top: 1rem;
         margin-bottom: 0.5rem;
-    }
+    }}
     
-    .placeholder-img {
+    .placeholder-img {{
         width: 150px;
         height: 150px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, {gradient_start} 0%, {gradient_end} 100%);
         border-radius: 50%;
         margin: 0 auto 1rem auto;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 3rem;
-        color: white;
-    }
+        color: {text_white};
+    }}
     
-    /* Compact Team Cards for Home Page */
-    .team-card-compact {
-        background-color: #ffffff;
+    /* ==========================================
+       TEAM CARDS (Compact for Home Page)
+       ========================================== */
+    .team-card-compact {{
+        background-color: {bg_white};
         padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        border-radius: {border_radius_sm};
+        box-shadow: 0 2px 4px {shadow_light};
         text-align: center;
         height: 100%;
-    }
+        transition: transform 0.2s ease;
+    }}
     
-    .placeholder-img-compact {
+    .team-card-compact:hover {{
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px {shadow_medium};
+    }}
+    
+    .placeholder-img-compact {{
         width: 80px;
         height: 80px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, {gradient_start} 0%, {gradient_end} 100%);
         border-radius: 50%;
         margin: 0 auto 0.5rem auto;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 2rem;
-        color: white;
-    }
+        color: {text_white};
+    }}
     
-    .student-name-compact {
+    .student-name-compact {{
         font-size: 1.1rem;
         font-weight: bold;
-        color: #1f4788;
+        color: {primary_blue};
         margin-top: 0.5rem;
-    }
+    }}
     
-    .student-number-compact {
+    .student-number-compact {{
         font-size: 0.9rem;
-        color: #5a6c7d;
+        color: {secondary_gray};
         margin-top: 0.3rem;
         font-style: italic;
-    }
+    }}
     </style>
-    """
+    """.format(
+        primary_blue=PRIMARY_BLUE,
+        primary_blue_dark=PRIMARY_BLUE_DARK,
+        primary_blue_light=PRIMARY_BLUE_LIGHT,
+        secondary_gray=SECONDARY_GRAY,
+        secondary_gray_light=SECONDARY_GRAY_LIGHT,
+        secondary_gray_dark=SECONDARY_GRAY_DARK,
+        bg_white=BG_WHITE,
+        bg_light_blue=BG_LIGHT_BLUE,
+        bg_off_white=BG_OFF_WHITE,
+        gradient_start=GRADIENT_START,
+        gradient_end=GRADIENT_END,
+        text_primary=TEXT_PRIMARY,
+        text_secondary=TEXT_SECONDARY,
+        text_light=TEXT_LIGHT,
+        text_white=TEXT_WHITE,
+        shadow_light=SHADOW_LIGHT,
+        shadow_medium=SHADOW_MEDIUM,
+        shadow_dark=SHADOW_DARK,
+        border_color=BORDER_COLOR,
+        border_radius_sm=BORDER_RADIUS_SM,
+        border_radius_md=BORDER_RADIUS_MD,
+        border_radius_lg=BORDER_RADIUS_LG
+    )

@@ -47,23 +47,54 @@ BORDER_RADIUS_LG = "20px"
 # HELPER FUNCTIONS FOR COMMON COMPONENTS
 # ==========================================
 
-def get_metric_html(title, description):
+def get_metric_html(title, description, **kwargs):
     """
     Generate HTML for a metric container with centralized colors.
     
     Args:
         title (str): The main metric value or title
         description (str): Description text below the title
+        **kwargs: Additional data fields to display in the metric box.
+                 Each key-value pair will create a new line in the metric.
     
     Returns:
         str: HTML for metric container
+    
+    Example:
+        get_metric_html("Customer Data", "Overview", 
+                       df_size=1000, 
+                       missing_values=25,
+                       columns=15)
+        
+        Will display:
+        Customer Data
+        Overview
+        df_size: 1000
+        missing_values: 25
+        columns: 15
     """
-    return f"""
+    # Start with base HTML
+    html = f"""
         <div class="metric-container">
             <h2 style="color: {PRIMARY_BLUE};">{title}</h2>
             <p style="color: {SECONDARY_GRAY};">{description}</p>
+    """
+    
+    # Add each additional field from kwargs
+    if kwargs:
+        html += '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e1e8ed;">'
+        for key, value in kwargs.items():
+            # Format the key to be more readable (replace underscores with spaces, capitalize)
+            formatted_key = key.replace('_', ' ').title()
+            html += f'<p style="color: {TEXT_SECONDARY}; font-size: 0.9rem; margin: 0.3rem 0;"><strong>{formatted_key}:</strong> {value}</p>'
+        html += '</div>'
+    
+    # Close the container
+    html += """
         </div>
     """
+    
+    return html
 
 
 def get_info_box_html(title, content):

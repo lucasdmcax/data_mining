@@ -4,7 +4,11 @@ Exploratory Data Analysis page for the dashboard.
 
 import streamlit as st
 import sys
+import pandas as pd
 from pathlib import Path
+
+FLITGHTS_DATA_PATH = Path(__file__).parent.parent / "data" / "flights.csv"
+CUSTOMERS_DATA_PATH = Path(__file__).parent.parent / "data" / "customers.csv"
 
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
@@ -53,13 +57,6 @@ with tab1:
             unsafe_allow_html=True
         )
         
-        st.write("")
-        st.write("**Add your customer data inspection here:**")
-        st.write("- Data shape and size")
-        st.write("- Column types and descriptions")
-        st.write("- Missing value analysis")
-        st.write("- Basic statistics")
-    
     with col2:
         st.markdown(
             get_metric_html(

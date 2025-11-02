@@ -399,3 +399,234 @@ def plot_box_plot(df: pd.DataFrame, column: str, dataset: str = 'customers'):
             st.dataframe(outlier_display, hide_index=True)
     elif n_outliers > 50:
         st.info(f"ℹ️ {n_outliers} outliers detected. Too many to display individually. Use the box plot for visualization.")
+
+
+@st.cache_data
+def create_canada_map_chart(df: pd.DataFrame):
+    """
+    Create an interactive Altair map with aggregated customer data.
+    Cached to avoid recalculation.
+    
+    Args:
+        df: Customer DataFrame with location columns
+        
+    Returns:
+        Altair chart object
+    """
+    # Aggregate by city - count customers per location
+    map_summary = df.groupby(['City', 'Province or State']).agg({
+        'Latitude': 'mean',
+        'Longitude': 'mean'
+    }).reset_index()
+    map_summary['Customers'] = df.groupby(['City', 'Province or State']).size().values
+    map_summary.columns = ['City', 'Province', 'Latitude', 'Longitude', 'Customers']
+    
+    # Load Canada GeoJSON for background
+    canada_url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/canada.geojson"
+    
+    # Create background map
+    background = alt.Chart(
+        alt.Data(url=canada_url, format=alt.DataFormat(property='features', type='json'))
+    ).mark_geoshape(
+        fill='#e8f4f8',
+        stroke='#2c5aa0',
+        strokeWidth=1.5
+    ).project(
+        type='mercator'
+    ).properties(
+        width=800,
+        height=500
+    )
+    
+    # Create scatter map with customer data
+    scatter_map = alt.Chart(map_summary).mark_circle(
+        opacity=0.85,
+        stroke='#1f4788',
+        strokeWidth=1
+    ).encode(
+        longitude='Longitude:Q',
+        latitude='Latitude:Q',
+        size=alt.Size(
+            'Customers:Q',
+            scale=alt.Scale(range=[50, 800], type='sqrt'),
+            legend=alt.Legend(title='Customers per City')
+        ),
+        color=alt.Color(
+            'Customers:Q',
+            scale=alt.Scale(scheme='orangered'),
+            legend=alt.Legend(title='Customer Count')
+        ),
+        tooltip=[
+            alt.Tooltip('City:N', title='City'),
+            alt.Tooltip('Province:N', title='Province'),
+            alt.Tooltip('Customers:Q', title='Customer Count', format=',')
+        ]
+    ).project(
+        type='mercator'
+    )
+    
+    # Combine and make interactive
+    combined_map = (background + scatter_map).properties(
+        title="Customer Distribution Across Canada"
+    ).configure_view(
+        strokeWidth=0
+    ).interactive()
+    
+    return combined_map
+
+
+@st.cache_data
+def prepare_table_data(df: pd.DataFrame):
+    """
+    Prepare data for geographic tables. Cached to avoid recalculation.
+    
+    Args:
+        df: Customer DataFrame
+        
+    Returns:
+        tuple: (city_counts, province_counts)
+    """
+    province_counts = df['Province or State'].value_counts().reset_index()
+    province_counts.columns = ['province', 'count']
+    
+    city_counts = df.groupby(['City', 'Province or State']).size().reset_index(name='count')
+    city_counts = city_counts.sort_values('count', ascending=False)
+    
+    return city_counts, province_counts
+
+
+def display_geographic_tables(df: pd.DataFrame, city_counts: pd.DataFrame, province_counts: pd.DataFrame):
+    """
+    Display interactive tables showing geographic distribution of customers.
+    
+    Args:
+        df: Original customer DataFrame
+        city_counts: DataFrame with city-level customer counts
+        province_counts: DataFrame with province-level customer counts
+    """
+    
+    filter_col1, filter_col2 = st.columns(2)
+    
+    with filter_col1:
+        selected_province = st.selectbox(
+            "Filter by Province/State",
+            options=["All"] + sorted(df['Province or State'].dropna().unique().tolist()),
+            help="Select a province to see detailed city breakdown"
+        )
+    
+    # Filter data based on selection
+    if selected_province != "All":
+        filtered_data = df[df['Province or State'] == selected_province]
+        
+        with filter_col2:
+            cities_in_province = sorted(filtered_data['City'].dropna().unique().tolist())
+            selected_city = st.selectbox(
+                "Filter by City",
+                options=["All"] + cities_in_province,
+                help="Select a city to see detailed information"
+            )
+        
+        if selected_city != "All":
+            filtered_data = filtered_data[filtered_data['City'] == selected_city]
+    else:
+        filtered_data = df
+        with filter_col2:
+            st.selectbox(
+                "Filter by City",
+                options=["All"],
+                disabled=True,
+                help="Select a province first"
+            )
+    
+    st.write("")
+    
+    # Display filtered results in two columns
+    col_left, col_right = st.columns(2)
+    
+    with col_left:
+        st.markdown("#### Top 10 Cities by Customer Count")
+        
+        if selected_province != "All":
+            display_cities = city_counts[city_counts['Province or State'] == selected_province].head(10)
+            st.caption(f"Showing cities in {selected_province}")
+        else:
+            display_cities = city_counts.head(10)
+            st.caption("Showing all cities")
+        
+        # Add percentage column
+        display_cities_table = display_cities.copy()
+        display_cities_table['percentage'] = (display_cities_table['count'] / len(filtered_data) * 100).round(2)
+        display_cities_table.columns = ['City', 'Province/State', 'Customer Count', 'Percentage (%)']
+        
+        st.dataframe(display_cities_table, hide_index=True, use_container_width=True)
+    
+    with col_right:
+        st.markdown("#### Provincial Distribution")
+        
+        if selected_province != "All":
+            st.caption(f"Selected: {selected_province}")
+            selected_data = province_counts[province_counts['province'] == selected_province]
+            st.metric("Customers in Province", f"{selected_data.iloc[0]['count']:,}")
+            st.metric("Percentage of Total", f"{(selected_data.iloc[0]['count'] / len(df) * 100):.2f}%")
+        else:
+            display_provinces = province_counts.head(10).copy()
+            display_provinces['percentage'] = (display_provinces['count'] / len(df) * 100).round(2)
+            display_provinces.columns = ['Province/State', 'Customer Count', 'Percentage (%)']
+            st.dataframe(display_provinces, hide_index=True, use_container_width=True)
+
+
+def plot_canada_map(df: pd.DataFrame):
+    """
+    Display an interactive Altair map showing customer distribution across Canada.
+    
+    Args:
+        df: Customer DataFrame with Latitude, Longitude, Province, and City columns
+    """
+    # Validate required columns
+    required_cols = ['Latitude', 'Longitude', 'Province or State', 'City']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        st.error(f"Missing required columns: {', '.join(missing_cols)}")
+        return
+    
+    # Remove rows with missing coordinates
+    clean_df = df.dropna(subset=['Latitude', 'Longitude'])
+    
+    if len(clean_df) == 0:
+        st.warning("No valid coordinate data available for mapping.")
+        return
+    
+    # Prepare table data (cached)
+    city_counts, province_counts = prepare_table_data(df)
+    
+    # Display summary metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Customers", f"{len(df):,}", help="Total number of customers")
+    
+    with col2:
+        st.metric("Provinces/States", f"{len(province_counts)}", help="Number of unique provinces/states")
+    
+    with col3:
+        st.metric("Cities", f"{df['City'].nunique()}", help="Number of unique cities")
+    
+    with col4:
+        top_city = city_counts.iloc[0]
+        st.metric("Top City", top_city['City'], delta=f"{top_city['count']:,} customers")
+    
+    st.write("")
+    
+    # Display the interactive Altair map
+    st.markdown("#### 🗺️ Customer Geographic Distribution")
+    st.info("💡 **Map Controls**: Scroll to zoom | Drag to pan | Double-click to reset")
+    
+    # Create and display the map (cached)
+    map_chart = create_canada_map_chart(clean_df)
+    st.altair_chart(map_chart, width='stretch')
+    
+    st.write("")
+    
+    # Display interactive tables
+    display_geographic_tables(df, city_counts, province_counts)

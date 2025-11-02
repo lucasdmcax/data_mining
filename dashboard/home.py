@@ -157,7 +157,7 @@ team_members = [
     {"name": "Lucas Campos Ferreira", "student_number": "20250448", "image": "lucas.png"},
     {"name": "João Paulo de Avila", "student_number": "20250436", "image": "joao.jpeg"},
     {"name": "Leonor", "student_number": "34567890", "image": None},
-    {"name": "Gonçalo", "student_number": "20250365", "image": None}
+    {"name": "Gonçalo Torrão", "student_number": "20250365", "image": "goncalo.jpg"}
 ]
 
 # Display team cards

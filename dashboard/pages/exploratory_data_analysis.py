@@ -18,7 +18,7 @@ flights_db = pd.read_csv(FLIGHTS_DATA_PATH)
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css, get_metric_html, get_info_box_html
-from utils import plot_data_distribution, plot_correlation_analysis, get_data_class, plot_box_plot
+from utils import plot_data_distribution, plot_correlation_analysis, get_data_class, plot_box_plot, plot_canada_map
 
 # Page configuration
 st.set_page_config(
@@ -35,7 +35,7 @@ st.markdown('<div class="main-header">📊 Exploratory Data Analysis</div>', uns
 st.markdown('<div class="sub-header">Initial exploration of customer data</div>', unsafe_allow_html=True)
 
 # Multitab Section
-tab1, tab2, tab3 = st.tabs(["🔍 Initial Inspection", "📈 Correlation Analysis", "⚠️ Outliers"])
+tab1, tab2, tab3, tab4 = st.tabs(["🔍 Initial Inspection", "📈 Correlation Analysis", "⚠️ Outliers", "🗺️ Geographic Analysis"])
 
 # Tab 1: Initial Inspection
 with tab1:
@@ -298,3 +298,29 @@ with tab3:
         # Plot box plot with outlier detection
         if selected_feature:
             plot_box_plot(outlier_df, selected_feature, dataset=outlier_dataset_name)
+
+
+# Tab 4: Geographic Analysis
+with tab4:
+    st.markdown("### Geographic Distribution")
+    
+    st.markdown(
+        get_info_box_html(
+            "About Geographic Analysis",
+            "Visualize the geographic distribution of AIAI customers across Canada. " \
+            "This map shows customer density by province/state, helping identify regional patterns and opportunities. " \
+            "<br><br>" \
+            "<strong>Key Insights:</strong><br>" \
+            "• <strong>Customer Concentration:</strong> Identify provinces with the highest customer base<br>" \
+            "• <strong>Regional Patterns:</strong> Understand geographic trends in customer distribution<br>" \
+            "• <strong>Market Opportunities:</strong> Discover underserved regions for expansion<br>" \
+            "• <strong>Interactive Map:</strong> Hover over provinces to see detailed customer counts"
+        ),
+        unsafe_allow_html=True
+    )
+    
+    st.write("")
+    
+    # Display map
+    st.markdown("#### Customer Distribution Map")
+    plot_canada_map(filtered_customers)

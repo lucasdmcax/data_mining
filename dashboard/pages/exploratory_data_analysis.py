@@ -18,7 +18,7 @@ flights_db = pd.read_csv(FLIGHTS_DATA_PATH)
 # Add parent directory to path to import styles
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css, get_metric_html, get_info_box_html
-from utils import plot_data_distribution, plot_correlation_analysis
+from utils import plot_data_distribution, plot_correlation_analysis, get_data_class, plot_box_plot
 
 # Page configuration
 st.set_page_config(
@@ -233,3 +233,68 @@ with tab2:
             st.info("ℹ️ Both features must be different from 'Loyalty#' for correlation analysis.")
         else:
             plot_correlation_analysis(analysis_df, feature1, feature2, dataset=dataset_name)
+
+
+# Tab 3: Outliers Detection
+with tab3:
+    st.markdown("### Outlier Detection")
+    
+    st.markdown(
+        get_info_box_html(
+            "About Outlier Detection",
+            "Identify unusual values in numerical variables that may indicate data quality issues or interesting patterns. " \
+            "This analysis uses the <strong>Interquartile Range (IQR)</strong> method with box plots for visualization." \
+            "<br><br>" \
+            "<strong>What is a Box Plot?</strong><br>" \
+            "A box plot displays the distribution of data based on five key statistics:<br>" \
+            "• <strong>Minimum:</strong> Lowest value within 1.5×IQR below Q1<br>" \
+            "• <strong>Q1 (25th percentile):</strong> 25% of data falls below this value<br>" \
+            "• <strong>Median (Q2):</strong> Middle value that divides data in half<br>" \
+            "• <strong>Q3 (75th percentile):</strong> 75% of data falls below this value<br>" \
+            "• <strong>Maximum:</strong> Highest value within 1.5×IQR above Q3<br>" \
+            "• <strong>Outliers:</strong> Points beyond 1.5×IQR from Q1 or Q3 (shown as individual dots)"
+        ),
+        unsafe_allow_html=True
+    )
+    
+    st.write("")
+    
+    # Dataset selection
+    st.markdown("#### Select Dataset")
+    outlier_dataset_choice = st.radio(
+        "Choose dataset for outlier analysis",
+        options=["Customers", "Flights"],
+        horizontal=True,
+        label_visibility="collapsed",
+        help="Choose which dataset to analyze for outliers",
+        key="outlier_dataset_radio"
+    )
+    
+    # Get the appropriate dataframe and dataset name
+    if outlier_dataset_choice == "Customers":
+        outlier_df = filtered_customers
+        outlier_dataset_name = 'customers'
+    else:
+        outlier_df = filtered_flights
+        outlier_dataset_name = 'flights'
+    
+    st.write("")
+    
+    # Get only numerical columns
+    numerical_cols = [col for col in outlier_df.columns if get_data_class(col, outlier_dataset_name) == 'numerical']
+    
+    if len(numerical_cols) == 0:
+        st.warning("No numerical columns available for outlier detection in this dataset.")
+    else:
+        st.markdown("#### Select Numerical Feature")
+        selected_feature = st.selectbox(
+            "Choose a numerical variable to analyze",
+            options=numerical_cols,
+            help="Select a numerical column to detect outliers"
+        )
+        
+        st.write("")
+        
+        # Plot box plot with outlier detection
+        if selected_feature:
+            plot_box_plot(outlier_df, selected_feature, dataset=outlier_dataset_name)

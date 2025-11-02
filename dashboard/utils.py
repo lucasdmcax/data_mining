@@ -8,6 +8,11 @@ import altair as alt
 import json
 from pathlib import Path
 
+# Import color for box plot
+import sys
+sys.path.append(str(Path(__file__).parent))
+from styles import PRIMARY_BLUE
+
 # Load column metadata into session state
 def load_metadata():
     """Load column metadata from JSON file into session state."""
@@ -247,3 +252,151 @@ def plot_correlation_analysis(df: pd.DataFrame, col1: str, col2: str, dataset: s
         )
         
         st.altair_chart(chart, width='stretch')
+
+
+def plot_box_plot(df: pd.DataFrame, column: str, dataset: str = 'customers'):
+    """
+    Plot box plot for outlier detection using IQR method.
+    
+    Args:
+        df (pd.DataFrame): The dataframe containing the column
+        column (str): Name of the numerical column to analyze
+        dataset (str): Dataset name - 'customers' or 'flights' for metadata lookup (default: 'customers')
+    
+    Returns:
+        None: Displays the box plot and outlier statistics in Streamlit
+    """
+    st.markdown(f"### Outlier Analysis: {column}")
+    
+    # Remove missing values
+    clean_data = df[column].dropna()
+    
+    if len(clean_data) == 0:
+        st.warning(f"No valid data available for {column}")
+        return
+    
+    # Calculate IQR statistics
+    Q1 = clean_data.quantile(0.25)
+    Q3 = clean_data.quantile(0.75)
+    IQR = Q3 - Q1
+    
+    # Define outlier boundaries
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    # Identify outliers
+    outliers = clean_data[(clean_data < lower_bound) | (clean_data > upper_bound)]
+    n_outliers = len(outliers)
+    outlier_percentage = (n_outliers / len(clean_data)) * 100
+    
+    # Display statistics in columns
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            label="Total Values",
+            value=f"{len(clean_data):,}",
+            help="Total number of non-missing values"
+        )
+    
+    with col2:
+        st.metric(
+            label="Outliers Detected",
+            value=f"{n_outliers:,}",
+            help="Number of values outside 1.5×IQR range"
+        )
+    
+    with col3:
+        st.metric(
+            label="Outlier %",
+            value=f"{outlier_percentage:.2f}%",
+            help="Percentage of outliers in the data"
+        )
+    
+    with col4:
+        st.metric(
+            label="IQR",
+            value=f"{IQR:.2f}",
+            help="Interquartile Range (Q3 - Q1)"
+        )
+    
+    st.write("")
+    
+    # Display key statistics
+    with st.expander("📊 Statistical Summary", expanded=False):
+        stats_col1, stats_col2, stats_col3 = st.columns(3)
+        
+        with stats_col1:
+            st.write("**Quartiles:**")
+            st.write(f"Q1 (25%): {Q1:.2f}")
+            st.write(f"Median (50%): {clean_data.median():.2f}")
+            st.write(f"Q3 (75%): {Q3:.2f}")
+        
+        with stats_col2:
+            st.write("**Range:**")
+            st.write(f"Min: {clean_data.min():.2f}")
+            st.write(f"Max: {clean_data.max():.2f}")
+            st.write(f"Range: {clean_data.max() - clean_data.min():.2f}")
+        
+        with stats_col3:
+            st.write("**Outlier Bounds:**")
+            st.write(f"Lower: {lower_bound:.2f}")
+            st.write(f"Upper: {upper_bound:.2f}")
+            st.write(f"IQR: {IQR:.2f}")
+    
+    st.write("")
+    
+    # Create horizontal box plot using Altair
+    # Prepare data for box plot (use all data, no sampling)
+    box_df = pd.DataFrame({column: clean_data})
+    
+    # Create horizontal box plot
+    box_chart = alt.Chart(box_df).mark_boxplot(
+        extent='min-max',
+        size=40
+    ).encode(
+        x=alt.X(f'{column}:Q', title=column, scale=alt.Scale(zero=False)),
+        color=alt.value(PRIMARY_BLUE)
+    ).properties(
+        height=150,
+        title=f"Box Plot: {column}"
+    )
+    
+    # Create scatter plot for outliers overlay (horizontal)
+    outlier_df = pd.DataFrame({column: outliers})
+    if len(outlier_df) > 0:
+        outlier_chart = alt.Chart(outlier_df).mark_circle(
+            size=80,
+            color='red',
+            opacity=0.6
+        ).encode(
+            x=alt.X(f'{column}:Q'),
+            tooltip=[alt.Tooltip(f'{column}:Q', format='.2f')]
+        )
+        
+        combined_chart = (box_chart + outlier_chart).configure_axis(
+            labelFontSize=12,
+            titleFontSize=14
+        ).configure_view(
+            strokeWidth=0
+        )
+    else:
+        combined_chart = box_chart.configure_axis(
+            labelFontSize=12,
+            titleFontSize=14
+        ).configure_view(
+            strokeWidth=0
+        )
+    
+    st.altair_chart(combined_chart, width='stretch')
+    
+    # Show outlier values if not too many
+    if n_outliers > 0 and n_outliers <= 50:
+        with st.expander(f"🔍 View Outlier Values ({n_outliers} total)", expanded=False):
+            outlier_display = pd.DataFrame({
+                column: outliers.values,
+                'Index': outliers.index
+            }).sort_values(by=column)
+            st.dataframe(outlier_display, hide_index=True)
+    elif n_outliers > 50:
+        st.info(f"ℹ️ {n_outliers} outliers detected. Too many to display individually. Use the box plot for visualization.")

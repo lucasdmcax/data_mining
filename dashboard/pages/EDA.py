@@ -35,7 +35,7 @@ st.markdown('<div class="main-header">📊 Exploratory Data Analysis</div>', uns
 st.markdown('<div class="sub-header">Initial exploration of customer data</div>', unsafe_allow_html=True)
 
 # Multitab Section
-tab1, tab2 = st.tabs(["🔍 Initial Inspection", "📈 Correlation Analysis"])
+tab1, tab2, tab3 = st.tabs(["🔍 Initial Inspection", "📈 Correlation Analysis", "⚠️ Outliers"])
 
 # Tab 1: Initial Inspection
 with tab1:

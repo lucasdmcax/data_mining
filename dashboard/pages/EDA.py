@@ -182,9 +182,10 @@ with tab2:
     # Dataset selection
     st.markdown("#### Select Dataset")
     dataset_choice = st.radio(
-        "",
+        "Choose dataset",
         options=["Customers", "Flights"],
         horizontal=True,
+        label_visibility="collapsed",
         help="Choose which dataset to analyze"
     )
     

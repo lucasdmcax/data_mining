@@ -120,7 +120,7 @@ def plot_data_distribution(series: pd.Series, variable_type: str = None, title: 
         return
     
     # Disable Altair's max rows warning and render
-    st.altair_chart(chart.configure_axis(labelLimit=500), use_container_width=True)
+    st.altair_chart(chart.configure_axis(labelLimit=500), width='stretch')
 
 
 def plot_correlation_analysis(df: pd.DataFrame, col1: str, col2: str, dataset: str = 'customers'):
@@ -185,7 +185,7 @@ def plot_correlation_analysis(df: pd.DataFrame, col1: str, col2: str, dataset: s
             title=f"Scatter Plot: {col1} vs {col2}"
         )
         
-        st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, width='stretch')
     
     # Case 2: Numerical vs Categorical - Distributions by category
     elif (class1 == 'numerical' and class2 == 'categorical') or \
@@ -215,7 +215,7 @@ def plot_correlation_analysis(df: pd.DataFrame, col1: str, col2: str, dataset: s
             title=f"Distribution of {num_col} by {cat_col}"
         )
         
-        st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, width='stretch')
     
     # Case 3: Categorical vs Categorical - Heatmap
     else:  # Both categorical
@@ -246,4 +246,4 @@ def plot_correlation_analysis(df: pd.DataFrame, col1: str, col2: str, dataset: s
             title=f"Heatmap: {col1} vs {col2}"
         )
         
-        st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, width='stretch')

@@ -359,7 +359,6 @@ def plot_box_plot(df: pd.DataFrame, column: str, dataset: str = 'customers'):
         color=alt.value(PRIMARY_BLUE)
     ).properties(
         height=150,
-        title=f"Box Plot: {column}"
     )
     
     # Create scatter plot for outliers overlay (horizontal)

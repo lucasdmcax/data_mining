@@ -171,8 +171,12 @@ with tab2:
     st.markdown(
         get_info_box_html(
             "About Correlation Analysis",
-            "Analyze relationships between variables to understand what drives customer loyalty, " \
-            "flight frequency, and spending patterns. Select two features from a dataset to explore their relationship."
+            "Explore relationships between variables to understand patterns in customer behavior. " \
+            "Select two features from a dataset and the system will automatically generate the appropriate visualization: " \
+            "<br><br>" \
+            "<strong>• Numerical vs Numerical:</strong> Scatter plot with Pearson correlation coefficient<br>" \
+            "<strong>• Numerical vs Categorical:</strong> Overlaid histograms colored by category<br>" \
+            "<strong>• Categorical vs Categorical:</strong> Heatmap showing cross-tabulation counts"
         ),
         unsafe_allow_html=True
     )
@@ -221,6 +225,11 @@ with tab2:
     
     st.write("")
     
-    # Show the correlation analysis
+    # Display correlation analysis
     if feature1 and feature2:
-        plot_correlation_analysis(analysis_df, feature1, feature2, dataset=dataset_name)
+        if feature1 == feature2:
+            st.warning("⚠️ Please select two different features to compare.")
+        elif feature1 == 'Loyalty#' or feature2 == 'Loyalty#':
+            st.info("ℹ️ Both features must be different from 'Loyalty#' for correlation analysis.")
+        else:
+            plot_correlation_analysis(analysis_df, feature1, feature2, dataset=dataset_name)

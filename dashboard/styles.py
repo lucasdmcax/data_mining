@@ -175,6 +175,15 @@ def get_custom_css():
         border-radius: {border_radius_sm};
         border-left: 5px solid {primary_blue};
         margin: 1rem 0;
+        color: {text_primary};
+    }}
+    
+    .info-box p {{
+        color: {text_primary} !important;
+    }}
+    
+    .info-box strong {{
+        color: {primary_blue_dark} !important;
     }}
     
     .metric-container {{

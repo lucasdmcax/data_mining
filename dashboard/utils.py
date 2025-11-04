@@ -620,7 +620,6 @@ def plot_canada_map(df: pd.DataFrame):
     
     # Display the interactive Altair map
     st.markdown("#### 🗺️ Customer Geographic Distribution")
-    st.info("💡 **Map Controls**: Scroll to zoom | Drag to pan | Double-click to reset")
     
     # Create and display the map (cached)
     map_chart = create_canada_map_chart(clean_df)

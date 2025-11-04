@@ -156,7 +156,7 @@ st.markdown('<div class="section-header">👥 Our Team</div>', unsafe_allow_html
 team_members = [
     {"name": "Lucas Campos Ferreira", "student_number": "20250448", "image": "lucas.png"},
     {"name": "João Paulo de Avila", "student_number": "20250436", "image": "joao.jpeg"},
-    {"name": "Leonor", "student_number": "34567890", "image": None},
+    {"name": "Maria Leonor Ribeiro", "student_number": "20221898", "image": "leonor.jpeg"},
     {"name": "Gonçalo Torrão", "student_number": "20250365", "image": "goncalo.jpg"}
 ]
 

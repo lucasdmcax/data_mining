@@ -79,7 +79,8 @@ with tab2:
             "1. Load raw data<br>"
             "2. Remove duplicate customers<br>"
             "3. Engineer features and create the model dataframe<br>"
-            "4. Perform correlation analysis and drop highly correlated features (> 0.8)"
+            "4. Detect and remove outliers<br>"
+            "5. Perform correlation analysis and drop highly correlated features (> 0.8)"
         ),
         unsafe_allow_html=True
     )
@@ -128,10 +129,9 @@ with tab2:
                 model_df_final = model_df.drop(columns=to_drop)
                 
                 # 5. Outlier Detection
-                st.markdown("#### 3. Outlier Detection (DBSCAN)")
+                st.markdown("#### 2. Outlier Detection (DBSCAN)")
                 model_df_clipped, outliers_df, outlier_count = detect_outliers(model_df_final)
                 
-                st.write(f"**DBSCAN Results:** {outlier_count}")
                 st.write(f"**Outliers detected:** {outlier_count.get(-1, 0)}")
                 st.write(f"**Core customers kept:** {len(model_df_clipped):,}")
                 
@@ -141,7 +141,7 @@ with tab2:
                 st.session_state['outliers_df'] = outliers_df
                 
                 # 6. Final Correlation Matrix (on clipped data)
-                st.markdown("#### 4. Final Correlation Matrix (Clipped Data)")
+                st.markdown("#### 3. Final Correlation Matrix (Clipped Data)")
                 fig2, ax2 = plt.subplots(figsize=(12, 10))
                 sns.heatmap(model_df_clipped.corr(), annot=True, fmt=".2f", cmap='coolwarm', center=0, ax=ax2)
                 st.pyplot(fig2)

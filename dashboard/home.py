@@ -204,19 +204,6 @@ for idx, member in enumerate(team_members):
 st.write("")
 st.write("")
 
-# Navigation Section
-st.markdown('<div class="section-header">🚀 Explore the Dashboard</div>', unsafe_allow_html=True)
-
-st.markdown("""
-    Use the **sidebar navigation** to explore different sections:
-    
-    - **[Exploratory Data Analysis](exploratory_data_analysis)** - Customer and flight data patterns
-    - **Customer Segmentation** - Distinct customer groups and characteristics
-    - **Business Recommendations** - Strategic actions per segment
-""")
-
-st.write("")
-
 # Footer
 st.markdown("---")
 col1, col2, col3 = st.columns([1, 2, 1])

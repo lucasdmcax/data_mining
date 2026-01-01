@@ -6,3 +6,6 @@ matplotlib
 seaborn
 scipy
 scikit-learn
+minisom
+umap-learn
+scikit-fuzzy

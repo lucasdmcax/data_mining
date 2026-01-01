@@ -435,3 +435,22 @@ def som_codebook_for_evaluation(X, x=10, y=10, sigma=1.0, learning_rate=0.5, n_i
     node_ids = [i * y + j for (i, j) in bmus]
     bmu_series = pd.Series(node_ids, index=X.index, name='SOM_node')
     return som, codebook_df, bmu_series
+
+def detect_outliers(model_df, eps=1.9, min_samples=20):
+    """
+    Detect and remove multivariate outliers using DBSCAN.
+    Returns:
+        model_df_clipped: DataFrame without outliers
+        outliers_df: DataFrame with outliers
+        outlier_count: Counter object with counts of outliers and core points
+    """
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples, n_jobs=1)
+    dbscan_labels = dbscan.fit_predict(model_df)
+    
+    outlier_count = Counter(dbscan_labels)
+    core_mask = (dbscan_labels != -1)
+    
+    model_df_clipped = model_df[core_mask]
+    outliers_df = model_df[dbscan_labels == -1]
+    
+    return model_df_clipped, outliers_df, outlier_count

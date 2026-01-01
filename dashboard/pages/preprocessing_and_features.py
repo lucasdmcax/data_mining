@@ -14,7 +14,7 @@ from pathlib import Path
 # Add parent directory to path to import styles and utils
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css, get_metric_html, get_info_box_html
-from cluster_utils import create_model_df
+from cluster_utils import create_model_df, detect_outliers
 
 # Page configuration
 st.set_page_config(
@@ -126,12 +126,24 @@ with tab2:
                 
                 # Drop features
                 model_df_final = model_df.drop(columns=to_drop)
-                st.session_state['model_df'] = model_df_final
                 
-                # 5. Final Correlation Matrix
-                st.markdown("#### 2. Final Correlation Matrix")
+                # 5. Outlier Detection
+                st.markdown("#### 3. Outlier Detection (DBSCAN)")
+                model_df_clipped, outliers_df, outlier_count = detect_outliers(model_df_final)
+                
+                st.write(f"**DBSCAN Results:** {outlier_count}")
+                st.write(f"**Outliers detected:** {outlier_count.get(-1, 0)}")
+                st.write(f"**Core customers kept:** {len(model_df_clipped):,}")
+                
+                # Store final results
+                st.session_state['model_df'] = model_df_final
+                st.session_state['model_df_clipped'] = model_df_clipped
+                st.session_state['outliers_df'] = outliers_df
+                
+                # 6. Final Correlation Matrix (on clipped data)
+                st.markdown("#### 4. Final Correlation Matrix (Clipped Data)")
                 fig2, ax2 = plt.subplots(figsize=(12, 10))
-                sns.heatmap(model_df_final.corr(), annot=True, fmt=".2f", cmap='coolwarm', center=0, ax=ax2)
+                sns.heatmap(model_df_clipped.corr(), annot=True, fmt=".2f", cmap='coolwarm', center=0, ax=ax2)
                 st.pyplot(fig2)
                 
                 st.success("✅ Pipeline Completed! Dataframes are ready for viewing.")
@@ -148,6 +160,8 @@ with tab3:
     if 'model_df' in st.session_state:
         df_options = {
             "Final Model Dataframe (model_df)": st.session_state['model_df'],
+            "Clipped Model Dataframe (No Outliers)": st.session_state.get('model_df_clipped'),
+            "Outliers Dataframe": st.session_state.get('outliers_df'),
             "Initial Model Dataframe (Before Drop)": st.session_state.get('initial_model_df'),
             "Raw Customers DB": st.session_state.get('raw_customers_db'),
             "Raw Flights DB": st.session_state.get('raw_flights_db')

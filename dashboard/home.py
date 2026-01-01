@@ -102,6 +102,32 @@ with col2:
 
 st.write("")
 
+# Navigation Section
+st.markdown('<div class="section-header">🧭 Navigation</div>', unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+        #### ⚙️ [Preprocessing & Features](/preprocessing_and_features)
+        - View feature documentation and rationale
+        - Run the data preprocessing pipeline
+        - Perform correlation analysis
+        - Detect and remove outliers
+        - Download processed datasets
+    """)
+
+with col2:
+    st.markdown("""
+        #### 📊 [Exploratory Data Analysis](/exploratory_data_analysis)
+        - Inspect individual customer records
+        - Analyze data distributions
+        - Explore correlations
+        - Visualize geographic data
+    """)
+
+st.write("")
+
 # Data Scope Section
 st.markdown('<div class="section-header">📁 Data Scope</div>', unsafe_allow_html=True)
 

@@ -18,7 +18,7 @@ from pathlib import Path
 # Add parent directory to path to import styles and utils
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css
-from cluster_utils import run_merged_clustering
+from cluster_utils import run_merged_clustering, load_preprocessed_data, apply_pca_2d, apply_tsne_2d, apply_umap_2d
 
 # Page configuration
 st.set_page_config(
@@ -36,28 +36,12 @@ st.markdown('<div class="sub-header">Results from the optimized merged clusterin
 
 # Check for data
 if 'model_df_clipped' not in st.session_state:
-    # Try to load pre-calculated data
-    data_dir = Path(__file__).parent.parent / "data"
-    model_df_path = data_dir / "model_df_clipped.csv"
-    unscaled_df_path = data_dir / "model_df_unscaled_clipped.csv"
+    # Try to load from CSV
+    model_df = load_preprocessed_data()
     
-    if model_df_path.exists():
-        try:
-            # Load model_df
-            model_df = pd.read_csv(model_df_path, index_col=0)
-            st.session_state['model_df_clipped'] = model_df
-            
-            # Load unscaled df if available
-            if unscaled_df_path.exists():
-                model_df_unscaled = pd.read_csv(unscaled_df_path, index_col=0)
-                st.session_state['model_df_unscaled'] = model_df_unscaled
-                
-            st.success("✅ Loaded pre-calculated feature data.")
-            
-        except Exception as e:
-            st.warning(f"Could not load pre-calculated data: {e}")
-            st.warning("⚠️ Please go to the 'Preprocessing & Features' page and run the pipeline first.")
-            st.stop()
+    if model_df is not None:
+        st.session_state['model_df_clipped'] = model_df
+        st.success("✅ Loaded pre-calculated feature data.")
     else:
         st.warning("⚠️ No preprocessed data found. Please go to the 'Preprocessing & Features' page and run the pipeline first.")
         st.stop()
@@ -100,7 +84,16 @@ if 'final_labels' not in st.session_state:
             if len(common_idx) > 0:
                 final_labels = results_df.loc[common_idx, 'Cluster']
                 st.session_state['final_labels'] = final_labels
-                st.success("✅ Loaded pre-calculated clustering results.")
+                
+                # Load Projections if available
+                if 'PCA1' in results_df.columns:
+                    st.session_state['final_proj_PCA'] = results_df.loc[common_idx, ['PCA1', 'PCA2', 'PCA3']]
+                if 'TSNE1' in results_df.columns:
+                    st.session_state['final_proj_t-SNE'] = results_df.loc[common_idx, ['TSNE1', 'TSNE2', 'TSNE3']]
+                if 'UMAP1' in results_df.columns:
+                    st.session_state['final_proj_UMAP'] = results_df.loc[common_idx, ['UMAP1', 'UMAP2', 'UMAP3']]
+                    
+                st.success("✅ Loaded pre-calculated clustering results and projections.")
             else:
                 st.warning("⚠️ Pre-calculated results indices do not match current data. Re-running model...")
                 raise ValueError("Index mismatch")
@@ -119,7 +112,7 @@ if 'final_labels' not in st.session_state:
                 st.error(f"Error running merged model: {e}")
                 st.stop()
 
-    # Calculate Metrics & Projections (if not already done)
+    # Calculate Metrics (if not already done)
     if 'final_sil' not in st.session_state:
         final_labels = st.session_state['final_labels']
         # Align X with labels
@@ -129,11 +122,6 @@ if 'final_labels' not in st.session_state:
         db_score = davies_bouldin_score(X_aligned, final_labels)
         st.session_state['final_sil'] = sil_score
         st.session_state['final_db'] = db_score
-        
-        # Run PCA for visualization
-        pca = PCA(n_components=3)
-        proj = pca.fit_transform(X_aligned)
-        st.session_state['final_viz_data'] = pd.DataFrame(proj, columns=['Comp1', 'Comp2', 'Comp3'], index=X_aligned.index)
 
 # Display Results
 labels = st.session_state['final_labels']
@@ -146,57 +134,74 @@ m2.metric("Silhouette Score", f"{st.session_state['final_sil']:.3f}")
 m3.metric("Davies-Bouldin", f"{st.session_state['final_db']:.3f}")
 
 # Tabs for Visualization and Profiling
-tab1, tab2, tab3 = st.tabs(["🔮 3D Visualization", "📈 Cluster Profiling", "📋 Recommendations"])
+tab1, tab2, tab3 = st.tabs(["🔮 Cluster Projection", "📈 Cluster Profiling", "📋 Recommendations"])
 
 with tab1:
-    st.markdown("### 3D Cluster Projection (PCA)")
-    if 'final_viz_data' in st.session_state:
-        viz_df = st.session_state['final_viz_data'].copy()
-        viz_df['Cluster'] = labels.astype(str)
-        viz_df['Loyalty#'] = model_df.index
+    st.markdown("### Cluster Projection (3D)")
+    
+    # Projection Method Selector
+    proj_method = st.selectbox("Select Projection Method", ["PCA", "t-SNE", "UMAP"], index=0)
+    
+    # Check if projection is loaded
+    proj_key = f'final_proj_{proj_method}'
+    
+    if proj_key not in st.session_state:
+        st.warning(f"⚠️ {proj_method} projection not found in pre-calculated data. Please run 'generate_results.py' to generate it.")
         
-        fig = px.scatter_3d(
-            viz_df, x='Comp1', y='Comp2', z='Comp3',
-            color='Cluster',
-            hover_data=['Loyalty#'],
-            color_discrete_sequence=px.colors.qualitative.Bold,
-            opacity=0.7,
-            title="3D PCA Projection of Customer Segments"
-        )
-        fig.update_layout(height=700, margin=dict(l=0, r=0, b=0, t=40))
-        st.plotly_chart(fig, use_container_width=True)
+        if proj_method in ["t-SNE", "UMAP"]:
+             st.warning(f"⚠️ {proj_method} projection can take a significant amount of time to compute.")
+             
+        # Fallback to calculating it live (2D or 3D? User asked for 3D)
+        with st.spinner(f"Calculating {proj_method} projection (Live)..."):
+             # Align X with labels
+            X_aligned = X.loc[labels.index]
+            if proj_method == "PCA":
+                pca = PCA(n_components=3)
+                proj = pca.fit_transform(X_aligned)
+                cols = ['PCA1', 'PCA2', 'PCA3']
+            elif proj_method == "t-SNE":
+                tsne = TSNE(n_components=3, random_state=42)
+                proj = tsne.fit_transform(X_aligned)
+                cols = ['TSNE1', 'TSNE2', 'TSNE3']
+            elif proj_method == "UMAP":
+                umap_model = UMAP(n_components=3, random_state=42)
+                proj = umap_model.fit_transform(X_aligned)
+                cols = ['UMAP1', 'UMAP2', 'UMAP3']
+            
+            st.session_state[proj_key] = pd.DataFrame(proj, columns=cols, index=X_aligned.index)
+
+    # Plot
+    viz_df = st.session_state[proj_key].copy()
+    viz_df['Cluster'] = labels.astype(str)
+    viz_df['Loyalty#'] = model_df.index
+    
+    cols = viz_df.columns
+    x_col, y_col, z_col = cols[0], cols[1], cols[2]
+    
+    fig = px.scatter_3d(
+        viz_df, x=x_col, y=y_col, z=z_col,
+        color='Cluster',
+        hover_data=['Loyalty#'],
+        color_discrete_sequence=px.colors.qualitative.Bold,
+        opacity=0.7,
+        title=f"3D {proj_method} Projection of Customer Segments"
+    )
+    fig.update_layout(height=700, margin=dict(l=0, r=0, b=0, t=40))
+    st.plotly_chart(fig, use_container_width=True)
 
 with tab2:
     st.markdown("### Cluster Characteristics")
     
-    # Prepare data for profiling (Unscaled if available)
-    if 'model_df_unscaled' in st.session_state:
-        raw_df = st.session_state['model_df_unscaled']
-        
-        # Map features
-        cols_to_profile = []
-        for col in selected_features:
-            if col in raw_df.columns:
-                cols_to_profile.append(col)
-            elif col.endswith('_log') and col[:-4] in raw_df.columns:
-                cols_to_profile.append(col[:-4])
-        
-        common_index = X.index.intersection(raw_df.index)
-        profile_df = raw_df.loc[common_index, cols_to_profile].copy()
-        profile_df['Cluster'] = labels
-        
-        title_suffix = "(Original Values)"
-        text_fmt = ".0f"
-    else:
-        profile_df = X.copy()
-        profile_df['Cluster'] = labels
-        title_suffix = "(Scaled)"
-        text_fmt = ".2f"
+    # Prepare data for profiling (Scaled)
+    profile_df = X.copy()
+    profile_df['Cluster'] = labels
+    title_suffix = "(Scaled)"
+    text_fmt = ".2f"
     
     # Calculate means
     cluster_means = profile_df.groupby('Cluster').mean()
     
-    # Heatmap
+    # 1. Absolute Means Heatmap
     st.markdown(f"#### Feature Means by Cluster {title_suffix}")
     fig_heat = px.imshow(
         cluster_means.T,
@@ -209,22 +214,39 @@ with tab2:
     )
     st.plotly_chart(fig_heat, use_container_width=True)
     
-    # Parallel Coordinates
-    st.markdown("#### Parallel Coordinates")
+    # 2. Non-Metric Features Heatmap
+    st.markdown("#### Non-Metric Features Distribution")
+    st.markdown("Heatmap showing the percentage of each category within each cluster.")
     
-    # Sample for plot clarity
-    if len(profile_df) > 500:
-        plot_sample = profile_df.sample(500, random_state=42)
-    else:
-        plot_sample = profile_df
+    # Use model_df_clipped for non-metric features (OHE/Binary)
+    non_metric_cols = [
+        'LoyaltyStatus_Nova', 'LoyaltyStatus_Star', 
+        'Location Code_Suburban', 'Location Code_Urban', 
+        'CancelledFlag', 'Marital Status', 'Gender'
+    ]
+    # Filter to those present
+    available_non_metric = [c for c in non_metric_cols if c in model_df.columns]
+    
+    if available_non_metric:
+        nm_df = model_df.loc[X.index, available_non_metric].copy()
+        nm_df['Cluster'] = labels
         
-    fig_par = px.parallel_coordinates(
-        plot_sample, 
-        color="Cluster",
-        dimensions=profile_df.columns[:-1], # Exclude Cluster column itself
-        color_continuous_scale=px.colors.diverging.Tealrose,
-    )
-    st.plotly_chart(fig_par, use_container_width=True)
+        # Group by cluster and calculate mean (proportion)
+        nm_means = nm_df.groupby('Cluster').mean()
+        
+        fig_cat = px.imshow(
+            nm_means.T,
+            labels=dict(x="Cluster", y="Feature Category", color="Proportion"),
+            x=nm_means.index.astype(str),
+            y=nm_means.columns,
+            color_continuous_scale="Blues",
+            aspect="auto",
+            text_auto=".2f"
+        )
+        fig_cat.update_layout(height=600)
+        st.plotly_chart(fig_cat, use_container_width=True)
+    else:
+        st.info("No non-metric features found in data.")
     
     # Feature Importance (Random Forest)
     st.markdown("#### Feature Importance (Random Forest)")

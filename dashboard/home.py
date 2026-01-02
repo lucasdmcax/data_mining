@@ -119,7 +119,7 @@ with col1:
 
 with col2:
     st.markdown("""
-        #### 🔮 [Interactive Clustering](/clustering)
+        #### 🔮 [Interactive Clustering](/clustering_playground)
         - Dynamic parameter tuning (K-Means)
         - 3D Cluster Visualization
         - Cluster Profiling & Export
@@ -136,7 +136,16 @@ with col3:
         - Visualize geographic data
     """)
 
-st.write("")
+with col4:
+    st.markdown("""
+        #### 🏆 [Final Analysis](/final_analysis)
+        - Results of the optimized merged model
+        - Detailed cluster profiles
+        - Strategic recommendations
+        - 3D Projections (PCA, t-SNE, UMAP)
+    """)
+
+    st.write("")
 
 # Data Scope Section
 st.markdown('<div class="section-header">📁 Data Scope</div>', unsafe_allow_html=True)

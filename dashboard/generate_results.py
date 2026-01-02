@@ -8,6 +8,9 @@ import numpy as np
 import sys
 from pathlib import Path
 import warnings
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from umap import UMAP
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -84,15 +87,49 @@ def main():
     try:
         final_labels = run_merged_clustering(model_df_clipped, behavior_features, profile_features)
         
-        # 5. Save Results
+        # 5. Calculate Projections (3D)
+        print("🔮 Calculating 3D Projections (PCA, t-SNE, UMAP)...")
+        
+        # Prepare data for projection
+        X = model_df_clipped[behavior_features + profile_features]
+        
+        # PCA
+        print("   - PCA...")
+        pca = PCA(n_components=3, random_state=42)
+        pca_res = pca.fit_transform(X)
+        
+        # t-SNE
+        print("   - t-SNE...")
+        tsne = TSNE(n_components=3, random_state=42, n_jobs=-1)
+        tsne_res = tsne.fit_transform(X)
+        
+        # UMAP
+        print("   - UMAP...")
+        umap_model = UMAP(n_components=3, random_state=42, n_jobs=1) # n_jobs=1 to avoid issues on some systems
+        umap_res = umap_model.fit_transform(X)
+        
+        # 6. Save Results
         output_path = Path(__file__).parent / "data" / "final_clustering_results.csv"
         
         # Create a dataframe with the index and labels
         results_df = pd.DataFrame(index=model_df_clipped.index)
         results_df['Cluster'] = final_labels
         
+        # Add projections
+        results_df['PCA1'] = pca_res[:, 0]
+        results_df['PCA2'] = pca_res[:, 1]
+        results_df['PCA3'] = pca_res[:, 2]
+        
+        results_df['TSNE1'] = tsne_res[:, 0]
+        results_df['TSNE2'] = tsne_res[:, 1]
+        results_df['TSNE3'] = tsne_res[:, 2]
+        
+        results_df['UMAP1'] = umap_res[:, 0]
+        results_df['UMAP2'] = umap_res[:, 1]
+        results_df['UMAP3'] = umap_res[:, 2]
+        
         results_df.to_csv(output_path)
-        print(f"✅ Success! Results saved to: {output_path}")
+        print(f"✅ Success! Results and projections saved to: {output_path}")
         
     except Exception as e:
         print(f"❌ Error running clustering: {e}")

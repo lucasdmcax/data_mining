@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 from scipy.stats.mstats import winsorize
 from scipy.cluster.hierarchy import dendrogram
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -507,3 +508,23 @@ def run_merged_clustering(model_df, behavior_features, profile_features):
     )
     
     return final_labels
+
+def load_preprocessed_data(data_dir=None):
+    """
+    Helper to load preprocessed data from CSVs if available.
+    Returns model_df or None
+    """
+    if data_dir is None:
+        data_dir = Path(__file__).parent / "data"
+        
+    model_df_path = data_dir / "model_df_clipped.csv"
+    
+    model_df = None
+    
+    if model_df_path.exists():
+        try:
+            model_df = pd.read_csv(model_df_path, index_col=0)
+        except Exception as e:
+            print(f"Error loading data: {e}")
+            
+    return model_df

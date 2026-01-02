@@ -20,7 +20,7 @@ from pathlib import Path
 # Add parent directory to path to import styles and utils
 sys.path.append(str(Path(__file__).parent.parent))
 from styles import get_custom_css, get_metric_html, get_info_box_html
-from cluster_utils import run_merged_clustering, apply_pca_2d, apply_tsne_2d, apply_umap_2d
+from cluster_utils import run_merged_clustering, apply_pca_2d, apply_tsne_2d, apply_umap_2d, load_preprocessed_data
 
 # Page configuration
 st.set_page_config(
@@ -38,8 +38,15 @@ st.markdown('<div class="sub-header">Dynamic parameter tuning and multi-view clu
 
 # Check for data
 if 'model_df_clipped' not in st.session_state:
-    st.warning("⚠️ No preprocessed data found. Please go to the 'Preprocessing & Features' page and run the pipeline first.")
-    st.stop()
+    # Try to load from CSV
+    model_df = load_preprocessed_data()
+    
+    if model_df is not None:
+        st.session_state['model_df_clipped'] = model_df
+        st.success("✅ Loaded pre-calculated feature data.")
+    else:
+        st.warning("⚠️ No preprocessed data found. Please go to the 'Preprocessing & Features' page and run the pipeline first.")
+        st.stop()
 
 # Load data
 model_df = st.session_state['model_df_clipped']
@@ -99,6 +106,9 @@ with tab1:
         
         st.markdown("### Visualization")
         viz_method = st.selectbox("Projection Method", ["PCA", "t-SNE", "UMAP"])
+        
+        if viz_method in ["t-SNE", "UMAP"]:
+            st.warning(f"⚠️ {viz_method} projection can take a significant amount of time to compute.")
         
         if st.button(f"Run {algorithm}", type="primary"):
             with st.spinner(f"Running {algorithm} and {viz_method}..."):
@@ -194,40 +204,11 @@ with tab2:
     if 'cluster_labels' in st.session_state:
         labels = st.session_state['cluster_labels']
         
-        # Prepare data for profiling
-        # Try to use unscaled data if available for better interpretability (integers)
-        if 'model_df_unscaled' in st.session_state:
-            # Get unscaled data
-            raw_df = st.session_state['model_df_unscaled']
-            
-            # Map selected features (scaled) to raw features
-            # e.g. 'TotalFlights_log' -> 'TotalFlights'
-            cols_to_profile = []
-            for col in selected_features:
-                # Direct match
-                if col in raw_df.columns:
-                    cols_to_profile.append(col)
-                # Log match
-                elif col.endswith('_log') and col[:-4] in raw_df.columns:
-                    cols_to_profile.append(col[:-4])
-                # Fallback: keep scaled if no raw equivalent found (e.g. ratios)
-                else:
-                    pass
-            
-            # Create profile dataframe with raw values
-            # We use the intersection of indices to be safe
-            common_index = X.index.intersection(raw_df.index)
-            profile_df = raw_df.loc[common_index, cols_to_profile].copy()
-            profile_df['Cluster'] = labels
-            
-            title_suffix = "(Original Values)"
-            text_fmt = ".0f" # Integer format for heatmap
-        else:
-            # Fallback to scaled data
-            profile_df = X.copy()
-            profile_df['Cluster'] = labels
-            title_suffix = "(Scaled)"
-            text_fmt = ".2f"
+        # Prepare data for profiling (Scaled)
+        profile_df = X.copy()
+        profile_df['Cluster'] = labels
+        title_suffix = "(Scaled)"
+        text_fmt = ".2f"
         
         # Calculate means
         cluster_means = profile_df.groupby('Cluster').mean()
@@ -247,22 +228,39 @@ with tab2:
         )
         st.plotly_chart(fig_heat, use_container_width=True)
         
-        # Parallel Coordinates Plot
-        st.markdown("#### Parallel Coordinates Plot")
+        # Non-Metric Features Heatmap
+        st.markdown("#### Non-Metric Features Distribution")
+        st.markdown("Heatmap showing the percentage of each category within each cluster.")
         
-        # Sample for plot clarity
-        if len(profile_df) > 500:
-            plot_sample = profile_df.sample(500, random_state=42)
-        else:
-            plot_sample = profile_df
+        # Use model_df_clipped for non-metric features (OHE/Binary)
+        non_metric_cols = [
+            'LoyaltyStatus_Nova', 'LoyaltyStatus_Star', 
+            'Location Code_Suburban', 'Location Code_Urban', 
+            'CancelledFlag', 'Marital Status', 'Gender'
+        ]
+        # Filter to those present
+        available_non_metric = [c for c in non_metric_cols if c in model_df.columns]
+        
+        if available_non_metric:
+            nm_df = model_df.loc[X.index, available_non_metric].copy()
+            nm_df['Cluster'] = labels
             
-        fig_par = px.parallel_coordinates(
-            plot_sample, 
-            color="Cluster",
-            dimensions=selected_features,
-            color_continuous_scale=px.colors.diverging.Tealrose,
-        )
-        st.plotly_chart(fig_par, use_container_width=True)
+            # Group by cluster and calculate mean (proportion)
+            nm_means = nm_df.groupby('Cluster').mean()
+            
+            fig_cat = px.imshow(
+                nm_means.T,
+                labels=dict(x="Cluster", y="Feature Category", color="Proportion"),
+                x=nm_means.index.astype(str),
+                y=nm_means.columns,
+                color_continuous_scale="Blues",
+                aspect="auto",
+                text_auto=".2f"
+            )
+            fig_cat.update_layout(height=600)
+            st.plotly_chart(fig_cat, use_container_width=True)
+        else:
+            st.info("No non-metric features found in data.")
         
         # Export
         st.markdown("#### Export Results")

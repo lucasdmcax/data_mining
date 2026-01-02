@@ -119,6 +119,16 @@ with col1:
 
 with col2:
     st.markdown("""
+        #### 🔮 [Interactive Clustering](/clustering)
+        - Dynamic parameter tuning (K-Means)
+        - 3D Cluster Visualization
+        - Cluster Profiling & Export
+    """)
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.markdown("""
         #### 📊 [Exploratory Data Analysis](/exploratory_data_analysis)
         - Inspect individual customer records
         - Analyze data distributions

@@ -103,13 +103,14 @@ with tab2:
                 st.success(f"✅ Data Loaded. Dropped {dropped_rows} duplicate customers.")
                 
                 # 3. Create Model DF
-                model_df = create_model_df(customers_db, flights_db)
+                model_df, model_df_unscaled = create_model_df(customers_db, flights_db)
                 st.success("✅ Model Dataframe Created.")
                 
                 # Store intermediate results
                 st.session_state['raw_customers_db'] = customers_db
                 st.session_state['raw_flights_db'] = flights_db
                 st.session_state['initial_model_df'] = model_df.copy()
+                st.session_state['model_df_unscaled'] = model_df_unscaled.copy()
                 
                 # 4. Correlation Analysis
                 st.markdown("#### 1. Initial Correlation Matrix")

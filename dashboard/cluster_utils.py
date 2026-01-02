@@ -200,9 +200,15 @@ def create_model_df(customer_df: pd.DataFrame, flights_df: pd.DataFrame) -> pd.D
     if 'Loyalty#' in model_df.columns:
         model_df.set_index('Loyalty#', inplace=True)
 
-    # 5. Handle Missing Values (Numeric)
-    numeric_cols_to_fill = model_df.select_dtypes(include=[np.number]).columns
-    model_df[numeric_cols_to_fill] = model_df[numeric_cols_to_fill].fillna(0)
+    # Capture unscaled data for profiling (before dropping/scaling)
+    # We fill NaNs here to ensure the unscaled data is usable
+    numeric_cols_all = model_df.select_dtypes(include=[np.number]).columns
+    model_df[numeric_cols_all] = model_df[numeric_cols_all].fillna(0)
+    df_unscaled = model_df.copy()
+
+    # 5. Handle Missing Values (Numeric) - Already done above for unscaled, but good to ensure
+    # numeric_cols_to_fill = model_df.select_dtypes(include=[np.number]).columns
+    # model_df[numeric_cols_to_fill] = model_df[numeric_cols_to_fill].fillna(0)
 
     # 6. Drop unnecessary columns
     cols_to_drop = [
@@ -246,7 +252,7 @@ def create_model_df(customer_df: pd.DataFrame, flights_df: pd.DataFrame) -> pd.D
         
     df_final = pd.concat(dfs_to_concat, axis=1)
     
-    return df_final
+    return df_final, df_unscaled
 
 def evaluate_clustering(algorithm_cls, X, param_grid, verbose = True, **kwargs):
     algo_name = algorithm_cls.__name__
@@ -454,3 +460,50 @@ def detect_outliers(model_df, eps=1.9, min_samples=20):
     outliers_df = model_df[dbscan_labels == -1]
     
     return model_df_clipped, outliers_df, outlier_count
+
+def run_merged_clustering(model_df, behavior_features, profile_features):
+    """
+    Executes the final merged clustering logic:
+    1. Meanshift on Behavior Features
+    2. Meanshift on Profile Features
+    3. Agglomerative Clustering on Centroids of (Behavior, Profile) combinations
+    
+    Returns:
+        final_labels: Series with final cluster labels
+    """
+    # 1. Behavior Clustering (Meanshift)
+    X_be = model_df[behavior_features]
+    bw_be = estimate_bandwidth(X_be, quantile=0.2, n_samples=500)
+    ms_be = MeanShift(bandwidth=bw_be, bin_seeding=True)
+    be_labels = ms_be.fit_predict(X_be)
+    
+    # 2. Profile Clustering (Meanshift)
+    X_pr = model_df[profile_features]
+    bw_pr = estimate_bandwidth(X_pr, quantile=0.2, n_samples=500)
+    ms_pr = MeanShift(bandwidth=bw_pr, bin_seeding=True)
+    pr_labels = ms_pr.fit_predict(X_pr)
+    
+    # 3. Combine Results
+    combined_features = behavior_features + profile_features
+    temp_df = model_df[combined_features].copy()
+    temp_df["behavior_cluster"] = be_labels
+    temp_df["profile_cluster"] = pr_labels
+    
+    # 4. Calculate Centroids
+    df_centroids = temp_df.groupby(["behavior_cluster", "profile_cluster"])[combined_features].mean()
+    
+    # 5. Hierarchical Clustering on Centroids
+    # Fixed to 6 clusters as per notebook conclusion
+    n_final_clusters = 6
+    hclust = AgglomerativeClustering(linkage='ward', n_clusters=n_final_clusters)
+    centroid_labels = hclust.fit_predict(df_centroids)
+    
+    # 6. Map back to original samples
+    # Create a mapping dictionary: (be_cluster, pr_cluster) -> final_label
+    mapping = {idx: label for idx, label in zip(df_centroids.index, centroid_labels)}
+    
+    final_labels = temp_df.apply(
+        lambda row: mapping.get((int(row['behavior_cluster']), int(row['profile_cluster']))), axis=1
+    )
+    
+    return final_labels

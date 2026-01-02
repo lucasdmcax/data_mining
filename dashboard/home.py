@@ -102,6 +102,51 @@ with col2:
 
 st.write("")
 
+# Navigation Section
+st.markdown('<div class="section-header">🧭 Navigation</div>', unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+        #### ⚙️ [Preprocessing & Features](/preprocessing_and_features)
+        - View feature documentation and rationale
+        - Run the data preprocessing pipeline
+        - Perform correlation analysis
+        - Detect and remove outliers
+        - Download processed datasets
+    """)
+
+with col2:
+    st.markdown("""
+        #### 🔮 [Interactive Clustering](/clustering_playground)
+        - Dynamic parameter tuning (K-Means)
+        - 3D Cluster Visualization
+        - Cluster Profiling & Export
+    """)
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.markdown("""
+        #### 📊 [Exploratory Data Analysis](/exploratory_data_analysis)
+        - Inspect individual customer records
+        - Analyze data distributions
+        - Explore correlations
+        - Visualize geographic data
+    """)
+
+with col4:
+    st.markdown("""
+        #### 🏆 [Final Analysis](/final_analysis)
+        - Results of the optimized merged model
+        - Detailed cluster profiles
+        - Strategic recommendations
+        - 3D Projections (PCA, t-SNE, UMAP)
+    """)
+
+    st.write("")
+
 # Data Scope Section
 st.markdown('<div class="section-header">📁 Data Scope</div>', unsafe_allow_html=True)
 
@@ -176,19 +221,6 @@ for idx, member in enumerate(team_members):
         )
 
 st.write("")
-st.write("")
-
-# Navigation Section
-st.markdown('<div class="section-header">🚀 Explore the Dashboard</div>', unsafe_allow_html=True)
-
-st.markdown("""
-    Use the **sidebar navigation** to explore different sections:
-    
-    - **[Exploratory Data Analysis](exploratory_data_analysis)** - Customer and flight data patterns
-    - **Customer Segmentation** - Distinct customer groups and characteristics
-    - **Business Recommendations** - Strategic actions per segment
-""")
-
 st.write("")
 
 # Footer

@@ -1,53 +1,41 @@
 # AIAI Customer Analytics Dashboard
 
+An interactive Streamlit application for visualizing customer segmentation results.
+
+## Quick Start
+
+1. **Generate Data & Projections** (Optional but Recommended)
+   Run this script to pre-calculate clustering results and 3D projections (PCA, t-SNE, UMAP). This significantly speeds up the dashboard.
+   ```bash
+   python generate_results.py
+   ```
+
+2. **Launch Dashboard**
+   ```bash
+   streamlit run home.py
+   ```
+
 ## Structure
 
 ```
 dashboard/
-├── home.py                 # Main landing page (run with: streamlit run home.py)
-├── styles.py              # Centralized CSS styles for all pages
+├── home.py                         # Main landing page
+├── generate_results.py             # Script to pre-calculate models and projections
+├── cluster_utils.py                # Shared clustering and data loading logic
+├── styles.py                       # Centralized CSS styling
 ├── pages/
-│   ├── about_us.py        # Detailed team information page
-│   └── template_page.py   # Template for creating new pages
-└── README.md              # This file
+│   ├── 1_exploratory_data_analysis.py  # EDA visualizations
+│   ├── 2_preprocessing_and_features.py # Feature engineering documentation
+│   ├── 3_clustering_playground.py      # Interactive clustering (K-Means, DBSCAN, etc.)
+│   └── 4_final_analysis.py             # Final merged model results & profiling
+└── data/                           # Stores preprocessed CSVs and results
 ```
 
-## Quick Start
-
-1. **Run the dashboard:**
-   ```bash
-   cd dashboard
-   streamlit run home.py
-   ```
-
-2. **Create a new page:**
-   - Copy `pages/template_page.py`
-   - Rename it to your desired page name (e.g., `eda_analysis.py`)
-   - Modify the content as needed
-   - The page will automatically appear in the sidebar
-
-## Styling
-
-All pages should import and use the centralized styles from `styles.py`:
-
-```python
-import streamlit as st
-import sys
-from pathlib import Path
-
-# Add parent directory to path to import styles
-sys.path.append(str(Path(__file__).parent.parent))
-from styles import get_custom_css
-
-# Apply custom CSS
-st.markdown(get_custom_css(), unsafe_allow_html=True)
-```
-
-## Pages Overview
-
-### Home Page (`home.py`)
-The main landing page featuring:
-- Project overview and objectives
+## 📊 Key Features
+- **Interactive Playground**: Test different clustering algorithms and parameters in real-time.
+- **3D Visualization**: Explore customer segments using 3D PCA, t-SNE, and UMAP projections.
+- **Cluster Profiling**: Analyze clusters using feature heatmaps and categorical distribution plots.
+- **Strategic Recommendations**: Actionable business insights based on the final segmentation.
 - Data scope metrics
 - Methodology overview
 - Compact team member display
